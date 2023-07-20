@@ -1,57 +1,68 @@
-from unitary_blocks import vatan_williams, qiskit_pooling
-from circuit_assembly import new_QCNN_circuit
-
-import matplotlib.pyplot as plt
+import numpy as np
+from data_encondings import amplitude_encode
 
 from qiskit import QuantumCircuit
+from qiskit.circuit.library import ZZFeatureMap
+from qiskit import Aer, execute
 
-from qiskit.algorithms.optimizers import L_BFGS_B
-from qiskit.circuit.library import ZFeatureMap
-
-from qiskit_machine_learning.algorithms.regressors import NeuralNetworkRegressor
-from qiskit_machine_learning.neural_networks import EstimatorQNN
-
-num_qubits = 4
-
-# Feature map
-feature_map = ZFeatureMap(num_qubits)
-
-# QCNN ansatz circuit
-ansatz = new_QCNN_circuit(num_qubits, 3, 3, vatan_williams, qiskit_pooling)
-
-# Full Circuit Assembly
-qcnn_qc = QuantumCircuit(num_qubits)
-qcnn_qc.compose(feature_map, inplace=True)
-qcnn_qc.compose(ansatz, inplace=True)
-qcnn_qc.draw(output="mpl", filename="circuit.pdf")
+from scipy.optimize import minimize
 
 
-# Estimator NN
-qcnn = EstimatorQNN(
-    circuit=qcnn_qc,
-    input_params=feature_map.parameters,
-    weight_params=ansatz.parameters,
-)
+def eval_ansatz(ansatz, sim, params):
+    # https://quantumcomputing.stackexchange.com/a/7131
+    ansatz_with_params = ansatz.assign_parameters(params)
+
+    job = execute(ansatz_with_params, sim, shots=2000)
+    sv = np.array(job.result().get_statevector(ansatz_with_params))
+    print(sv)
+    return sv
 
 
-def callback_graph(weights, obj_func_eval):
-    # callback function that draws a live plot when the .fit() method is called
-    clear_output(wait=True)
-    objective_func_vals.append(obj_func_eval)
-    plt.title("Objective function value against iteration")
-    plt.xlabel("Iteration")
-    plt.ylabel("Objective function value")
-    plt.plot(range(len(objective_func_vals)), objective_func_vals)
-    plt.show()
+def compute_cost(A_y, alpha_y, ansatz, sim, params):
+    sv = eval_ansatz(ansatz, sim, params)
+
+    psi_y = 0.0
+    for i, _ in enumerate(alpha_y):
+        psi_y += alpha_y[i] * sv[i]
+    psi_y *= A_y
+
+    return 1.0 - np.sqrt(np.real(psi_y * np.conjugate(psi_y)))
 
 
-# Regressor
-regressor = NeuralNetworkRegressor(
-    neural_network=qcnn,
-    loss="squared_error",
-    optimizer=L_BFGS_B(maxiter=100),
-    callback=callback_graph,
-)
+# create dataset
+num_param = 4
+a = 1.0
+b = 1.0
+x = np.linspace(-1.0, 1.0, num=num_param)
+y = a * x + b
+
+# Create and init ansatz quantum circuit
+A_x, alpha_x, num_qubits = amplitude_encode(x)
+A_y, alpha_y, _ = amplitude_encode(y)
+
+ansatz = QuantumCircuit(num_qubits)
+ansatz.initialize(A_x * alpha_x)
+ansatz.compose(ZZFeatureMap(num_qubits, reps=1), inplace=True)
+ansatz.draw(output="mpl", filename="circuit.pdf")
+
+sim = Aer.get_backend('statevector_simulator')
+
+eval_ansatz(ansatz, sim, [1.0, 1.0])
 
 
-# draw(output="mpl", filename="circuit.pdf")
+def f(params):
+    return compute_cost(A_y, alpha_y, ansatz, sim, params)
+
+
+def g(x):
+    return x[1] - x[0] * x[0] + 1
+
+
+# out = minimize(g, x0=[1.0, 1.0], method="BFGS", options={'maxiter': 200}, tol=1e-3)
+
+# print(out)
+
+# with open("data.ascii", "w") as file:
+#    for a in np.arange(-10.0, 10.0, 0.1):
+#        for b in np.arange(-10.0, 10.0, 0.1):
+#            print(a, b, f([a, b]), sep="    ", file=file)
