@@ -1,68 +1,65 @@
 import numpy as np
-from data_encondings import amplitude_encode
 
-from qiskit import QuantumCircuit
-from qiskit.circuit.library import ZZFeatureMap
-from qiskit import Aer, execute
-
+from qiskit import Aer
+from qiskit.circuit.library import PauliFeatureMap
 from scipy.optimize import minimize
 
-
-def eval_ansatz(ansatz, sim, params):
-    # https://quantumcomputing.stackexchange.com/a/7131
-    ansatz_with_params = ansatz.assign_parameters(params)
-
-    job = execute(ansatz_with_params, sim, shots=2000)
-    sv = np.array(job.result().get_statevector(ansatz_with_params))
-    print(sv)
-    return sv
+import regression as reg
+import unitary_blocks as ubs
 
 
-def compute_cost(A_y, alpha_y, ansatz, sim, params):
-    sv = eval_ansatz(ansatz, sim, params)
+def main():
 
-    psi_y = 0.0
-    for i, _ in enumerate(alpha_y):
-        psi_y += alpha_y[i] * sv[i]
-    psi_y *= A_y
+    # create dataset
+    num_param = 4
+    a = 1.0
+    b = 0.0
+    x = np.linspace(-1.0, 1.0, num=num_param)
+    y = a * x + b
 
-    return 1.0 - np.sqrt(np.real(psi_y * np.conjugate(psi_y)))
+    # VQC, ansatz, cost operator and hadamard test of cost operator
+    vqc = ubs.new_vatan_williams()
+    ansatz = reg.make_ansatz(vqc, x)
+    cost_operator = reg.make_cost_operator(ansatz, y)
+    H_test_cost_op = reg.add_hadamard_test(cost_operator)
+
+    # Simulator
+    sim = Aer.get_backend('statevector_simulator')
+
+    # Minimizer
+    out = minimize(
+        lambda params: reg.global_cost(H_test_cost_op, sim, params),
+        x0=[-8.0, -3.0, -1.0],
+        method="L-BFGS-B",
+        options={'maxiter': 1000},
+        tol=1e-8
+    )
+    print(out)
+
+    # Bracketing
+
+    # Result comparison
+    print("---------- Result comparison ----------")
+    print("# 1:obtained 2:expected 3:error")
+
+    ansatz_eval = reg.eval_pqc(ansatz, sim, out.x)
+    normalized_y = y / np.linalg.norm(y)
+
+    assert len(ansatz_eval) == len(normalized_y)
+
+    for i in range(len(ansatz_eval)):
+        print(
+            np.real(ansatz_eval[i]),
+            normalized_y[i],
+            np.abs(np.real(ansatz_eval[i]) - normalized_y[i]),
+            sep="    "
+        )
+
+    # Dump cost function
+    # print("Dumping cost")
+    # reg.dump_cost(8.0, 65, 3, H_test_cost_op, sim)
 
 
-# create dataset
-num_param = 4
-a = 1.0
-b = 1.0
-x = np.linspace(-1.0, 1.0, num=num_param)
-y = a * x + b
-
-# Create and init ansatz quantum circuit
-A_x, alpha_x, num_qubits = amplitude_encode(x)
-A_y, alpha_y, _ = amplitude_encode(y)
-
-ansatz = QuantumCircuit(num_qubits)
-ansatz.initialize(A_x * alpha_x)
-ansatz.compose(ZZFeatureMap(num_qubits, reps=1), inplace=True)
-ansatz.draw(output="mpl", filename="circuit.pdf")
-
-sim = Aer.get_backend('statevector_simulator')
-
-eval_ansatz(ansatz, sim, [1.0, 1.0])
-
-
-def f(params):
-    return compute_cost(A_y, alpha_y, ansatz, sim, params)
-
-
-def g(x):
-    return x[1] - x[0] * x[0] + 1
-
-
-# out = minimize(g, x0=[1.0, 1.0], method="BFGS", options={'maxiter': 200}, tol=1e-3)
-
-# print(out)
-
-# with open("data.ascii", "w") as file:
-#    for a in np.arange(-10.0, 10.0, 0.1):
-#        for b in np.arange(-10.0, 10.0, 0.1):
-#            print(a, b, f([a, b]), sep="    ", file=file)
+# Required in order to kepp subprocesses from launching recursivelly
+if __name__ == '__main__':
+    main()
