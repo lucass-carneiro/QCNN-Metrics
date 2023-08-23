@@ -1,6 +1,6 @@
 __pycache__/*
 
-*.pdf
-!notes.pdf
+*.svg
+!notes.svg
 
 *.hdf5

@@ -11,6 +11,8 @@ import h5py
 
 import unitary_blocks as ubs
 
+sim_shots = 1000
+
 
 def amplitude_encode(data_array, num_qubits, block_label):
     """ Encodes a numpy array into a quantum circuit using amplitude encoding.
@@ -47,7 +49,7 @@ def make_ansatz(vqc, x_data, draw=True):
     ansatz.append(vqc.to_gate(label="VQC"), qubit_range)
 
     if draw:
-        ansatz.draw(output="mpl", filename="ansatz.pdf")
+        ansatz.draw(output="mpl", filename="ansatz.svg")
 
     return ansatz
 
@@ -67,7 +69,7 @@ def make_cost_operator(ansatz, y_data, draw=True):
     cost_op.append(S_y_dagg, qubit_range)
 
     if draw:
-        cost_op.draw(output="mpl", filename="cost_operator.pdf")
+        cost_op.draw(output="mpl", filename="cost_operator.svg")
 
     return cost_op
 
@@ -84,7 +86,7 @@ def add_hadamard_test(cost_op, draw=True):
     H_test.h(0)
 
     if draw:
-        H_test.draw(output="mpl", filename="hadamard_test.pdf")
+        H_test.draw(output="mpl", filename="hadamard_test.svg")
 
     return H_test
 
@@ -93,7 +95,7 @@ def eval_pqc(pqc, sim, params):
     # https://quantumcomputing.stackexchange.com/a/7131
     pqc_with_params = pqc.assign_parameters(params)
 
-    job = execute(pqc_with_params, sim, shots=2000)
+    job = execute(pqc_with_params, sim, shots=sim_shots)
     sv = np.array(job.result().get_statevector(pqc_with_params))
     return sv
 
@@ -155,3 +157,14 @@ def dump_cost(a_end, a_count, dims, H_test_qc, sim):
 
     with h5py.File("cost_data.hdf5", "w") as f:
         f.create_dataset("cost_data", dtype=float, data=cost_data)
+
+
+def save_fit(x_data, y_data, ansatz, sim, params):
+    ansatz_eval = np.real(eval_pqc(ansatz, sim, params))
+    y_norm = y_data / np.linalg.norm(y_data)
+
+    with h5py.File("fit_data.hdf5", "w") as f:
+        f.create_dataset("input_data", dtype=float, data=x_data)
+        f.create_dataset("normalized_target_data", dtype=float, data=y_norm)
+        f.create_dataset("fit_params", dtype=float, data=params)
+        f.create_dataset("fitted_data", dtype=float, data=ansatz_eval)

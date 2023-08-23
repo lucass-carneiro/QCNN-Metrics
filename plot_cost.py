@@ -25,15 +25,21 @@ vars = [
     "cost"
 ]
 
+cval = 1.5
 cost_df = pd.DataFrame(cost_data, columns=vars)
-plot_df = cost_df.loc[cost_df["c"] == -8.0]
+plot_df = cost_df.loc[cost_df["c"] == cval]
 
-plt.tricontourf(plot_df["a"], plot_df["b"], plot_df["cost"], levels=100)
+cnt = plt.tricontourf(plot_df["a"], plot_df["b"], plot_df["cost"], levels=100)
 
+for c in cnt.collections:
+    c.set_edgecolor("face")
+
+plt.title("Cost function with $c = " + str(cval) + "$", fontsize=font_size)
 plt.xlabel("$a$", fontsize=font_size)
 plt.ylabel("$b$", fontsize=font_size)
 
 plt.colorbar()
 
 plt.tight_layout()
-plt.show()
+# plt.show()
+plt.savefig("cost.png", dpi=500)

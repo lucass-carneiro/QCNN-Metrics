@@ -1,7 +1,8 @@
 import numpy as np
 
-from qiskit import Aer
-from qiskit.circuit.library import PauliFeatureMap
+from qiskit import QuantumCircuit, Aer
+from qiskit.circuit import ParameterVector
+from qiskit.circuit.library import PauliFeatureMap, ZZFeatureMap
 from scipy.optimize import minimize
 
 import regression as reg
@@ -12,38 +13,42 @@ def main():
 
     # create dataset
     num_param = 4
-    a = 1.0
-    b = 0.0
-    x = np.linspace(-1.0, 1.0, num=num_param)
-    y = a * x + b
+    a = np.random.rand(1)
+    x = np.linspace(-np.pi, np.pi, num=num_param)
+    y = a * x
 
     # VQC, ansatz, cost operator and hadamard test of cost operator
-    vqc = ubs.new_vatan_williams()
+    # vqc = new_QCNN_circuit(2, 3, 3, ubs.vatan_williams, ubs.qiskit_pooling)
+    vqc = QuantumCircuit(int(np.log2(num_param)))
+    ubs.vatan_williams(vqc, 0, 1, ParameterVector("p0", 3))
+
+    vqc.draw(output="mpl", filename="vqc.svg")
     ansatz = reg.make_ansatz(vqc, x)
     cost_operator = reg.make_cost_operator(ansatz, y)
     H_test_cost_op = reg.add_hadamard_test(cost_operator)
 
     # Simulator
-    sim = Aer.get_backend('statevector_simulator')
+    sim = Aer.get_backend("statevector_simulator")
+    sim.set_options(precision="double")
 
     # Minimizer
+    print("Minimizing")
     out = minimize(
         lambda params: reg.global_cost(H_test_cost_op, sim, params),
-        x0=[-8.0, -3.0, -1.0],
+        x0=[0.5] * H_test_cost_op.num_parameters,
         method="L-BFGS-B",
         options={'maxiter': 1000},
-        tol=1e-8
+        tol=1e-6
     )
     print(out)
 
-    # Bracketing
-
     # Result comparison
     print("---------- Result comparison ----------")
-    print("# 1:obtained 2:expected 3:error")
+    print("# 1:abs(obtained) 2:abs(expected) 3:error")
 
-    ansatz_eval = reg.eval_pqc(ansatz, sim, out.x)
-    normalized_y = y / np.linalg.norm(y)
+    ansatz_eval = np.abs(np.real(reg.eval_pqc(ansatz, sim, out.x)))
+    normalized_y = np.abs(y / np.linalg.norm(y))
+    reg.save_fit(x, y, ansatz, sim, out.x)
 
     assert len(ansatz_eval) == len(normalized_y)
 
