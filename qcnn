@@ -1,0 +1,103 @@
+#!/usr/bin/python
+"""qcnn.
+
+Usage:
+  qcnn train
+  qcnn dump-cost
+  qcnn plot-fit
+  qcnn plot-cost
+  qcnn (-h | --help)
+  qcnn --version
+
+Options:
+  -h --help     Show this screen.
+  --version     Show version.
+"""
+from docopt import docopt
+
+import numpy as np
+
+from qiskit import QuantumCircuit, Aer
+from qiskit.circuit import ParameterVector
+from scipy.optimize import minimize
+
+import regression as reg
+import unitary_blocks as ubs
+import plots as plts
+
+
+def train(H_test_cost_op, sim):
+    print("Training")
+
+    out = minimize(
+        lambda params: reg.global_cost(H_test_cost_op, sim, params),
+        x0=[0.5] * H_test_cost_op.num_parameters,
+        method="L-BFGS-B",
+        options={'maxiter': 1000},
+        tol=1e-6
+    )
+
+    return out
+
+
+def compare_results(x, y, ansatz, sim, train_output):
+    print("---------- Result comparison ----------")
+    print("# 1:abs(obtained) 2:abs(expected) 3:error")
+
+    ansatz_eval = np.abs(np.real(reg.eval_pqc(ansatz, sim, train_output.x)))
+    normalized_y = np.abs(y / np.linalg.norm(y))
+    reg.save_fit(x, y, ansatz, sim, train_output.x)
+
+    assert len(ansatz_eval) == len(normalized_y)
+
+    for i in range(len(ansatz_eval)):
+        print(
+            np.real(ansatz_eval[i]),
+            normalized_y[i],
+            np.abs(np.real(ansatz_eval[i]) - normalized_y[i]),
+            sep="    "
+        )
+
+
+def dump_cost(H_test_cost_op, sim):
+    print("Dumping cost")
+    reg.dump_cost(8.0, 65, 3, H_test_cost_op, sim)
+
+
+def main(arguments):
+
+    # create dataset
+    num_param = 4
+    a = np.random.rand(1)
+    x = np.linspace(-np.pi, np.pi, num=num_param)
+    y = a * x
+
+    # VQC, ansatz, cost operator and hadamard test of cost operator
+    # vqc = new_QCNN_circuit(2, 3, 3, ubs.vatan_williams, ubs.qiskit_pooling)
+    vqc = QuantumCircuit(int(np.log2(num_param)))
+    ubs.vatan_williams(vqc, 0, 1, ParameterVector("p0", 3))
+
+    vqc.draw(output="mpl", filename="img/vqc.svg")
+    ansatz = reg.make_ansatz(vqc, x)
+    cost_operator = reg.make_cost_operator(ansatz, y)
+    H_test_cost_op = reg.add_hadamard_test(cost_operator)
+
+    # Simulator
+    sim = Aer.get_backend("statevector_simulator")
+    sim.set_options(precision="double")
+
+    if arguments["train"]:
+        train_output = train(H_test_cost_op, sim)
+        compare_results(x, y, ansatz, sim, train_output)
+    elif arguments["dump-cost"]:
+        dump_cost(H_test_cost_op, sim)
+    elif arguments["plot-fit"]:
+        plts.plot_fit()
+    elif arguments["plot-cost"]:
+        plts.plot_cost()
+
+
+# Required in order to keep subprocesses from launching recursivelly
+if __name__ == '__main__':
+    arguments = docopt(__doc__, version="qcnn 1.0")
+    main(arguments)

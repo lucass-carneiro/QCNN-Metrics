@@ -1,6 +1,4 @@
 __pycache__/*
 
-*.svg
-!notes.svg
-
-*.hdf5
+img/*
+data/*

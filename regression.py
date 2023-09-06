@@ -49,7 +49,7 @@ def make_ansatz(vqc, x_data, draw=True):
     ansatz.append(vqc.to_gate(label="VQC"), qubit_range)
 
     if draw:
-        ansatz.draw(output="mpl", filename="ansatz.svg")
+        ansatz.draw(output="mpl", filename="img/ansatz.svg")
 
     return ansatz
 
@@ -69,7 +69,7 @@ def make_cost_operator(ansatz, y_data, draw=True):
     cost_op.append(S_y_dagg, qubit_range)
 
     if draw:
-        cost_op.draw(output="mpl", filename="cost_operator.svg")
+        cost_op.draw(output="mpl", filename="img/cost_operator.svg")
 
     return cost_op
 
@@ -86,7 +86,7 @@ def add_hadamard_test(cost_op, draw=True):
     H_test.h(0)
 
     if draw:
-        H_test.draw(output="mpl", filename="hadamard_test.svg")
+        H_test.draw(output="mpl", filename="img/hadamard_test.svg")
 
     return H_test
 
@@ -110,7 +110,7 @@ def Hadamard_test(H_test_qc, sim, params):
 
 
 def global_cost(H_test_qc, sim, params):
-    return np.sqrt(1.0 - np.abs(Hadamard_test(H_test_qc, sim, params))**2)
+    return 1.0 - np.abs(Hadamard_test(H_test_qc, sim, params))**2
 
 
 def global_cost_with_params(H_test_qc, sim, params):
@@ -155,7 +155,7 @@ def dump_cost(a_end, a_count, dims, H_test_qc, sim):
         sim
     )
 
-    with h5py.File("cost_data.hdf5", "w") as f:
+    with h5py.File("data/cost_data.hdf5", "w") as f:
         f.create_dataset("cost_data", dtype=float, data=cost_data)
 
 
@@ -163,7 +163,7 @@ def save_fit(x_data, y_data, ansatz, sim, params):
     ansatz_eval = np.real(eval_pqc(ansatz, sim, params))
     y_norm = y_data / np.linalg.norm(y_data)
 
-    with h5py.File("fit_data.hdf5", "w") as f:
+    with h5py.File("data/fit_data.hdf5", "w") as f:
         f.create_dataset("input_data", dtype=float, data=x_data)
         f.create_dataset("normalized_target_data", dtype=float, data=y_norm)
         f.create_dataset("fit_params", dtype=float, data=params)

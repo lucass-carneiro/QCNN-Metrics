@@ -28,7 +28,7 @@ def vatan_williams(qc, q0, q1, params):
 def new_vatan_williams(draw=True):
     qc = QuantumCircuit(2)
     vatan_williams(qc, 0, 1, ParameterVector("p", 3))
-    qc.draw(output="mpl", filename="vqc.svg")
+    qc.draw(output="mpl", filename="img/vqc.svg")
     return qc
 
 
@@ -78,5 +78,5 @@ def vatan_williams_2_param(qc, q0, q1, p2, params):
 def new_vatan_williams_2_param(p2, draw=True):
     qc = QuantumCircuit(2)
     vatan_williams_2_param(qc, 0, 1, p2, ParameterVector("p", 2))
-    qc.draw(output="mpl", filename="vqc.svg")
+    qc.draw(output="mpl", filename="img/vqc.svg")
     return qc
