@@ -1,0 +1,9 @@
+docopt
+numpy
+pandas
+h5py
+matplotlib
+qiskit
+pylatexenc
+pennylane
+pennylane-qiskit

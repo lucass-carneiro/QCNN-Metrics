@@ -1,0 +1,14 @@
+import pennylane as qml
+from pennylane import numpy as np
+
+
+# The generalized 2-qubit unitary defined in https://arxiv.org/abs/quant-ph/0308006, Fig 6.
+def vatan_williams(p, w):
+    qml.RZ(np.pi / 2, wires=w[1])
+    qml.CNOT(wires=[w[1], w[0]])
+    qml.RZ(p[0], wires=w[0])
+    qml.RY(p[1], wires=w[1])
+    qml.CNOT(wires=[w[0], w[1]])
+    qml.RY(p[2], wires=w[1])
+    qml.CNOT(wires=[w[1], w[0]])
+    qml.RZ(-np.pi / 2, wires=w[0])
