@@ -17,8 +17,7 @@ model_data_file = os.path.join("data", "model_0.hdf5")
 
 def new_dataset(x_min, x_max, dataset_size):
     x = np.linspace(x_min, x_max, num=dataset_size)
-    # y = np.random.rand(1) * x
-    y = 0.5 * x
+    y = np.random.rand(1) * x
 
     A = 1.0 / np.sqrt(np.dot(x, x))
     B = 1.0 / np.sqrt(np.dot(y, y))
@@ -109,7 +108,11 @@ def main(arguments):
         )
         return
 
-    dataset_size = int(arguments["<dataset-size>"])
+    if arguments["validate"]:
+        dataset_size = utils.get_dataset_size(model_data_file)
+    else:
+        dataset_size = int(arguments["<dataset-size>"])
+
     assert dataset_size > 0
 
     # Normalized dataset
@@ -144,4 +147,13 @@ def main(arguments):
 
     if arguments["draw"]:
         draw(qcnn, q_device, ansatz, dataset_size, num_qubits)
+        return
+
+    if arguments["validate"]:
+        utils.validate(
+            model_data_file,
+            ansatz,
+            q_device,
+            os.path.join(img_folder, "validation.pdf")
+        )
         return

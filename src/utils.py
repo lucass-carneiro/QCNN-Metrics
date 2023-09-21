@@ -143,45 +143,101 @@ def save_data(name, i, cost_data, params, x, y, cfm, qfm):
 
 def plot_fisher_spectrum(data_file, plot_file, quantum=False, font_size=18):
     with h5py.File(data_file, "r") as f:
-        print(quantum)
         if quantum:
             fm = np.array(f.get("fisher_matrix/qfm"))
         else:
             fm = np.array(f.get("fisher_matrix/cfm"))
 
-        np.set_printoptions(linewidth=200)
+    np.set_printoptions(linewidth=200)
 
-        num_mats = len(fm)
-        num_eigenvals = len(fm[0])
-        avg_eigenvalues = np.zeros(num_eigenvals)
+    num_mats = len(fm)
+    num_eigenvals = len(fm[0])
+    avg_eigenvalues = np.zeros(num_eigenvals)
 
-        for mat in fm:
-            eigenvalues = np.abs(np.linalg.eigvals(mat))
-            avg_eigenvalues = avg_eigenvalues + eigenvalues
+    for mat in fm:
+        eigenvalues = np.abs(np.linalg.eigvals(mat))
+        avg_eigenvalues = avg_eigenvalues + eigenvalues
 
-        avg_eigenvalues = avg_eigenvalues / num_mats
-        avg_eigenvalues = avg_eigenvalues / np.max(avg_eigenvalues)
+    avg_eigenvalues = avg_eigenvalues / num_mats
+    avg_eigenvalues = avg_eigenvalues / np.max(avg_eigenvalues)
 
-        print("Normalized avg. eigenvalues")
-        print(avg_eigenvalues)
+    print("Normalized avg. eigenvalues")
+    print(avg_eigenvalues)
 
-        mpl.rcParams['mathtext.fontset'] = 'cm'
-        mpl.rcParams['font.family'] = 'Latin Modern Roman'
-        mpl.rcParams['xtick.labelsize'] = font_size
-        mpl.rcParams['ytick.labelsize'] = font_size
+    mpl.rcParams['mathtext.fontset'] = 'cm'
+    mpl.rcParams['font.family'] = 'Latin Modern Roman'
+    mpl.rcParams['xtick.labelsize'] = font_size
+    mpl.rcParams['ytick.labelsize'] = font_size
 
-        plt.close("all")
+    plt.close("all")
 
-        w = np.ones(num_eigenvals) / num_eigenvals
-        plt.hist(
-            avg_eigenvalues,
-            bins=5,
-            range=(0.0, 1.0),
-            weights=w
-        )
+    w = np.ones(num_eigenvals) / num_eigenvals
+    plt.hist(
+        avg_eigenvalues,
+        bins=5,
+        range=(0.0, 1.0),
+        weights=w
+    )
 
-        plt.xlabel("Normalized Avg. Eigenvalues", fontsize=font_size)
-        plt.ylabel("Normalized counts", fontsize=font_size)
+    plt.xlabel("Normalized Avg. Eigenvalues", fontsize=font_size)
+    plt.ylabel("Normalized counts", fontsize=font_size)
 
-        plt.tight_layout()
-        plt.savefig(plot_file)
+    plt.tight_layout()
+    plt.savefig(plot_file)
+
+
+def get_dataset_size(data_file):
+    with h5py.File(data_file, "r") as f:
+        return len(f.get("trainig_data/training_set"))
+
+
+def validate(data_file, ansatz, q_device, plot_file, font_size=18):
+    with h5py.File(data_file, "r") as f:
+        x = np.array(f.get("trainig_data/training_set"))
+        y = np.array(f.get("trainig_data/target_set"))
+        p = np.array(f.get("trainig_data/params"))
+
+    # QCNN state and node
+    def ansatz_func(P):
+        ansatz(x, P)
+        return qml.state()
+
+    ansatz_node = qml.QNode(ansatz_func, q_device)
+    x_theta = np.real(ansatz_node(p))
+    print("Original ata")
+    print(y)
+    print("Trained data")
+    print(x_theta)
+    print("Error")
+    error = np.abs(np.abs(y) - np.abs(x_theta))
+    print(error)
+
+    mpl.rcParams['mathtext.fontset'] = 'cm'
+    mpl.rcParams['font.family'] = 'Latin Modern Roman'
+    mpl.rcParams['xtick.labelsize'] = font_size
+    mpl.rcParams['ytick.labelsize'] = font_size
+
+    plt.close("all")
+
+    f, (ax1, ax2) = plt.subplots(1, 2, subplot_kw=dict(box_aspect=1))
+
+    # Fit
+    ax1.scatter(x, y, label="Input data", color="black")
+    ax1.scatter(x, x_theta, label="Trained", color="red")
+
+    ax1.set_aspect("equal", adjustable="datalim")
+    ax1.legend()
+
+    ax1.set_xlabel("$x$", fontsize=font_size)
+    ax1.set_ylabel("$y$", fontsize=font_size)
+
+    # Error
+    ax2.scatter(x, error, color="black")
+
+    ax1.set_aspect("equal", adjustable="datalim")
+
+    ax2.set_xlabel("$x$", fontsize=font_size)
+    ax2.set_ylabel("Error", fontsize=font_size)
+
+    f.tight_layout()
+    f.savefig(plot_file, bbox_inches="tight")

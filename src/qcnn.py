@@ -5,6 +5,7 @@ Usage:
   qcnn train <model-id> <dataset-size> [--max-iters=<iters>] [--abstol=<abstol>] [--fisher-samples=<samples>] [--plot-cost]
   qcnn fisher-spectrum <model-id> [--quantum]
   qcnn draw <model-id> <dataset-size>
+  qcnn validate <model-id>
   qcnn (-h | --help)
   qcnn --version
 
