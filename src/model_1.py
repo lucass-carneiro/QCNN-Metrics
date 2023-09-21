@@ -1,18 +1,18 @@
 """
-Model 0:
+Model 1:
 """
 
 import utils
-from convolutional_layers import vatan_williams as unitary_block_function
-from convolutional_layers import vatan_williams_ppb as param_per_block
+from convolutional_layers import hur_kim_park_3 as unitary_block_function
+from convolutional_layers import hur_kim_park_3_ppb as param_per_block
 
 import pennylane as qml
 from pennylane import numpy as np
 
 import os
 
-img_folder = os.path.join("img", "model_0")
-model_data_file = os.path.join("data", "model_0.hdf5")
+img_folder = os.path.join("img", "model_1")
+model_data_file = os.path.join("data", "model_1.hdf5")
 
 
 def new_dataset(x_min, x_max, dataset_size):

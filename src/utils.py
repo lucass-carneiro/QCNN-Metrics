@@ -83,13 +83,15 @@ def optimize(ansatz, x, H, q_device, num_params, arguments):
     return i, cost_data, params
 
 
-def classical_fisher(ansatz, x, q_device, num_params, fisher_samples):
+def classical_fisher(qcnn, num_params, num_qubits, fisher_samples):
     print("Computing classical fisher")
 
     # Ansatz state and node
+    q_device = qml.device("default.qubit", wires=num_qubits, shots=None)
+
     def ansatz_func(p):
-        ansatz(x, p)
-        return qml.probs()
+        qcnn(p)
+        return qml.probs(wires=range(num_qubits))
 
     ansatz_node = qml.QNode(ansatz_func, q_device)
 
@@ -107,11 +109,11 @@ def quantum_fisher(qcnn, num_params, num_qubits, fisher_samples):
     print("Computing quantum Fisher")
 
     # QCNN state and node
-    q_device = qml.device("default.qubit", wires=num_qubits + 1, shots=1000)
+    q_device = qml.device("default.qubit", wires=num_qubits + 1, shots=None)
 
     def qcnn_func(p):
         qcnn(p)
-        return qml.probs()
+        return qml.probs(wires=range(num_qubits))
 
     qcnn_node = qml.QNode(qcnn_func, q_device)
 
@@ -139,19 +141,47 @@ def save_data(name, i, cost_data, params, x, y, cfm, qfm):
         fm.create_dataset("qfm", data=qfm)
 
 
-def compute_fisher_spectrum(name):
-    with h5py.File(name, "r") as f:
-        cfm = np.array(f.get("fisher_matrix/cfm"))
-        qfm = np.array(f.get("fisher_matrix/qfm"))
+def plot_fisher_spectrum(data_file, plot_file, quantum=False, font_size=18):
+    with h5py.File(data_file, "r") as f:
+        print(quantum)
+        if quantum:
+            fm = np.array(f.get("fisher_matrix/qfm"))
+        else:
+            fm = np.array(f.get("fisher_matrix/cfm"))
 
         np.set_printoptions(linewidth=200)
-        # for i in range(1):
-        i = 0
-        cfm_eigvals, _ = np.linalg.eig(cfm[i])
-        qfm_eigvals, _ = np.linalg.eig(qfm[i])
 
-        print(cfm[i])
-        print(qfm[i])
-        print(cfm_eigvals)
-        print(qfm_eigvals)
-        print("----------------------")
+        num_mats = len(fm)
+        num_eigenvals = len(fm[0])
+        avg_eigenvalues = np.zeros(num_eigenvals)
+
+        for mat in fm:
+            eigenvalues = np.abs(np.linalg.eigvals(mat))
+            avg_eigenvalues = avg_eigenvalues + eigenvalues
+
+        avg_eigenvalues = avg_eigenvalues / num_mats
+        avg_eigenvalues = avg_eigenvalues / np.max(avg_eigenvalues)
+
+        print("Normalized avg. eigenvalues")
+        print(avg_eigenvalues)
+
+        mpl.rcParams['mathtext.fontset'] = 'cm'
+        mpl.rcParams['font.family'] = 'Latin Modern Roman'
+        mpl.rcParams['xtick.labelsize'] = font_size
+        mpl.rcParams['ytick.labelsize'] = font_size
+
+        plt.close("all")
+
+        w = np.ones(num_eigenvals) / num_eigenvals
+        plt.hist(
+            avg_eigenvalues,
+            bins=5,
+            range=(0.0, 1.0),
+            weights=w
+        )
+
+        plt.xlabel("Normalized Avg. Eigenvalues", fontsize=font_size)
+        plt.ylabel("Normalized counts", fontsize=font_size)
+
+        plt.tight_layout()
+        plt.savefig(plot_file)

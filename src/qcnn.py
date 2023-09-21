@@ -3,7 +3,7 @@
 
 Usage:
   qcnn train <model-id> <dataset-size> [--max-iters=<iters>] [--abstol=<abstol>] [--fisher-samples=<samples>] [--plot-cost]
-  qcnn fisher-spectrum <model-id>
+  qcnn fisher-spectrum <model-id> [--quantum]
   qcnn draw <model-id> <dataset-size>
   qcnn (-h | --help)
   qcnn --version
@@ -13,18 +13,22 @@ Options:
   --abstol=<abstol>           Absolute tolerance. Training stops if abs(cost) < abstol [default: 1.0e-4].
   --fisher-samples=<samples>  How many times to compute Fisher matrices using random parameters [default: 100].
   --plot-cost                 Plots the cost Vs iteration plot for the training procedure.
+  --quantum                   Plots the spectrum of the Quantum Fisher Matrix, instead of the classical spectrum
   -h --help                   Show this screen.
   --version                   Show version.
 """
 
 from docopt import docopt
 import model_0
+import model_1
 
 
 def main(arguments):
     match int(arguments["<model-id>"]):
         case 0:
             model_0.main(arguments)
+        case 1:
+            model_1.main(arguments)
 
 
 # Required in order to keep subprocesses from launching recursivelly
