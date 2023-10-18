@@ -11,7 +11,7 @@ def plot_fit(font_size=18):
     plt.close("all")
 
     mpl.rcParams['mathtext.fontset'] = 'cm'
-    mpl.rcParams['font.family'] = 'Latin Modern Roman'
+    # mpl.rcParams['font.family'] = 'Latin Modern Roman'
     mpl.rcParams['xtick.labelsize'] = font_size
     mpl.rcParams['ytick.labelsize'] = font_size
     mpl.rcParams['text.latex.preamble'] = r"\usepackage{bm}"

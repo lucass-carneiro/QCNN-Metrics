@@ -28,7 +28,7 @@ def draw(func, device, name, *args):
 
 def plot_cost(cost_data, max_iters, name, font_size=18):
     mpl.rcParams['mathtext.fontset'] = 'cm'
-    mpl.rcParams['font.family'] = 'Latin Modern Roman'
+    # mpl.rcParams['font.family'] = 'Latin Modern Roman'
     mpl.rcParams['xtick.labelsize'] = font_size
     mpl.rcParams['ytick.labelsize'] = font_size
 
@@ -165,7 +165,7 @@ def plot_fisher_spectrum(data_file, plot_file, quantum=False, font_size=18):
     print(avg_eigenvalues)
 
     mpl.rcParams['mathtext.fontset'] = 'cm'
-    mpl.rcParams['font.family'] = 'Latin Modern Roman'
+    # mpl.rcParams['font.family'] = 'Latin Modern Roman'
     mpl.rcParams['xtick.labelsize'] = font_size
     mpl.rcParams['ytick.labelsize'] = font_size
 
@@ -204,7 +204,7 @@ def validate(data_file, ansatz, q_device, plot_file, font_size=18):
 
     ansatz_node = qml.QNode(ansatz_func, q_device)
     x_theta = np.real(ansatz_node(p))
-    print("Original ata")
+    print("Original data")
     print(y)
     print("Trained data")
     print(x_theta)
@@ -213,7 +213,7 @@ def validate(data_file, ansatz, q_device, plot_file, font_size=18):
     print(error)
 
     mpl.rcParams['mathtext.fontset'] = 'cm'
-    mpl.rcParams['font.family'] = 'Latin Modern Roman'
+    # mpl.rcParams['font.family'] = 'Latin Modern Roman'
     mpl.rcParams['xtick.labelsize'] = font_size
     mpl.rcParams['ytick.labelsize'] = font_size
 
