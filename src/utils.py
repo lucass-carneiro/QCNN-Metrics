@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 
 import h5py
 
+import subprocess
+import shutil
+import os
+
 
 def new_device(dataset_size):
     num_qubits = int(np.log2(dataset_size))
@@ -241,3 +245,26 @@ def validate(data_file, ansatz, q_device, plot_file, font_size=18):
 
     f.tight_layout()
     f.savefig(plot_file, bbox_inches="tight")
+
+
+def archive(img_folder, model_data_file, model_name):
+    tar_name = model_name + ".tar"
+    gzip_name = tar_name + ".gz"
+
+    subprocess.run([
+        "tar",
+        "cf",
+        tar_name,
+        img_folder,
+        model_data_file
+    ])
+
+    subprocess.run([
+        "gzip",
+        "-9",
+        tar_name
+    ])
+
+    shutil.move(gzip_name, os.path.join("archive", gzip_name))
+
+    return 0

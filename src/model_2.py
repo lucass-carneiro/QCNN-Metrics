@@ -3,8 +3,8 @@ Model 2:
 """
 
 import utils
-from convolutional_layers import hur_kim_park_3 as unitary_block_function
-from convolutional_layers import hur_kim_park_3_ppb as param_per_block
+from convolutional_layers import hur_kim_park_5 as unitary_block_function
+from convolutional_layers import hur_kim_park_5_ppb as param_per_block
 
 import pennylane as qml
 from pennylane import numpy as np
@@ -16,13 +16,14 @@ import h5py
 
 import os
 
-img_folder = os.path.join("img", "model_2")
-model_data_file = os.path.join("data", "model_2.hdf5")
+model_name = "model_2"
+img_folder = os.path.join("img", model_name)
+model_data_file = os.path.join("data", model_name + ".hdf5")
 
 
 def new_dataset(x_min, x_max, dataset_size):
     x = np.linspace(x_min, x_max, num=dataset_size)
-    y = np.random.rand(1) * x + np.random.rand(1)
+    y = 0.3 * x + 0.5
 
     return x, y
 
@@ -59,17 +60,17 @@ def optimize(ansatz, x, y, q_device, num_qubits, num_params, arguments):
         ansatz(x, p)
         return [qml.expval(qml.PauliZ(i)) for i in range(num_qubits)]
 
-    cost_node = qml.QNode(cost_circuit, q_device, interface="numpy")
+    cost_node = qml.QNode(cost_circuit, q_device, interface="autograd")
 
     N = len(y)
 
     def cost(p):
         xi = np.arccos(cost_node(p))/2
-        return np.sum(np.abs(y - xi)**2) / N
+        return np.sqrt(np.sum((y - xi)**2) / N)
 
     # Optimization parameters and cost vector
     cost_data = []
-    params = np.random.normal(0, np.pi, num_params, requires_grad=True)
+    params = np.random.normal(-np.pi, np.pi, num_params, requires_grad=True)
 
     # Optimize
     opt = qml.SPSAOptimizer(maxiter=max_iters)
@@ -81,6 +82,7 @@ def optimize(ansatz, x, y, q_device, num_qubits, num_params, arguments):
     for i in range(max_iters):
         params, loss = opt.step_and_cost(cost, params)
         cost_data.append(loss)
+        print("Loss in teration", i, "=", loss)
 
         if np.abs(loss) < abstol:
             stopping_criteria = "absolute tolerance reached"
@@ -192,6 +194,18 @@ def validate(data_file, ansatz, q_device, num_qubits, plot_file, font_size=18):
 
 
 def main(arguments):
+    if arguments["archive"]:
+        utils.archive(img_folder, model_data_file, model_name)
+        return
+
+    if arguments["fisher-spectrum"]:
+        utils.plot_fisher_spectrum(
+            model_data_file,
+            os.path.join(img_folder, "spectrum.pdf"),
+            arguments["--quantum"]
+        )
+        return
+
     if arguments["validate"]:
         dataset_size = utils.get_dataset_size(model_data_file)
     else:

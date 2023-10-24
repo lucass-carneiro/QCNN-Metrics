@@ -6,6 +6,7 @@ Usage:
   qcnn fisher-spectrum <model-id> [--quantum]
   qcnn draw <model-id> <dataset-size>
   qcnn validate <model-id>
+  qcnn archive <model-id>
   qcnn (-h | --help)
   qcnn --version
 
