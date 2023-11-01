@@ -32,7 +32,7 @@ def encode(num_qubits, data):
     assert (len(data) == num_qubits)
 
     for i in range(num_qubits):
-        qml.RY(data[i], i)
+        qml.RY(2 * data[i], i)
 
 
 def new_qcnn(num_qubits):
@@ -70,7 +70,7 @@ def optimize(ansatz, x, y, q_device, num_qubits, num_params, arguments):
 
     # Optimization parameters and cost vector
     cost_data = []
-    params = np.random.normal(-np.pi, np.pi, num_params, requires_grad=True)
+    params = np.random.normal(-x[0], x[-1], num_params, requires_grad=True)
 
     # Optimize
     opt = qml.SPSAOptimizer(maxiter=max_iters)

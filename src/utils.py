@@ -30,6 +30,12 @@ def draw(func, device, name, *args):
     fig.savefig(name)
 
 
+def draw2(func, device, name, *args):
+    node = qml.QNode(func, device)
+    fig, _ = qml.draw_mpl(node)(*args)
+    fig.savefig(name)
+
+
 def plot_cost(cost_data, max_iters, name, font_size=18):
     mpl.rcParams['mathtext.fontset'] = 'cm'
     # mpl.rcParams['font.family'] = 'Latin Modern Roman'

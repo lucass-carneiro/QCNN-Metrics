@@ -24,6 +24,7 @@ from docopt import docopt
 import model_0
 import model_1
 import model_2
+import model_3
 
 
 def main(arguments):
@@ -34,6 +35,8 @@ def main(arguments):
             model_1.main(arguments)
         case 2:
             model_2.main(arguments)
+        case 3:
+            model_3.main(arguments)
 
 
 # Required in order to keep subprocesses from launching recursivelly
