@@ -3,8 +3,8 @@ Model 2:
 """
 
 import utils
-from convolutional_layers import hur_kim_park_5 as unitary_block_function
-from convolutional_layers import hur_kim_park_5_ppb as param_per_block
+from convolutional_layers import hur_kim_park_6 as unitary_block_function
+from convolutional_layers import hur_kim_park_6_ppb as param_per_block
 
 import pennylane as qml
 from pennylane import numpy as np

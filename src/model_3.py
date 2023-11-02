@@ -3,7 +3,6 @@ Model 3:
 """
 
 import utils
-
 from convolutional_layers import hur_kim_park_6 as unitary_block_function
 from convolutional_layers import hur_kim_park_6_ppb as param_per_block
 
@@ -25,7 +24,7 @@ model_data_file = os.path.join("data", model_name + ".hdf5")
 def new_dataset(dataset_size):
     x = np.linspace(-1.0, 1.0, num=dataset_size)
     x = x / np.sqrt(np.dot(x, x))
-    y = x*x*x
+    y = 0.3 * x + 0.5
     return x, y
 
 
@@ -33,7 +32,7 @@ def optimize(args, ansatz, device, x, y, dataset_size, num_params):
     max_iters = int(args["--max-iters"])
     abstol = float(args["--abstol"])
 
-    cost_node = qml.QNode(ansatz, device, interface="autograd")
+    cost_node = qml.QNode(ansatz, device, interface="numpy")
     target = y.astype(complex)
 
     def cost(p):
@@ -41,8 +40,9 @@ def optimize(args, ansatz, device, x, y, dataset_size, num_params):
 
         cost_diff = target - trained
         cost_diffS = np.conjugate(cost_diff)
+        yi_m_xi_2 = np.real(cost_diff * cost_diffS)
 
-        return np.sum(np.sqrt(np.real(cost_diff * cost_diffS))) / dataset_size
+        return np.sqrt(np.sum(yi_m_xi_2) / num_params)
 
     # Optimization parameters and cost vector
     cost_data = []
@@ -157,6 +157,18 @@ def validate(data_file, ansatz, device, num_qubits, plot_file, font_size=18):
 
 
 def main(args):
+    if args["archive"]:
+        utils.archive(img_folder, model_data_file, model_name)
+        return
+
+    if args["fisher-spectrum"]:
+        utils.plot_fisher_spectrum(
+            model_data_file,
+            os.path.join(img_folder, "spectrum.pdf"),
+            args["--quantum"]
+        )
+        return
+
     if args["validate"]:
         dataset_size = utils.get_dataset_size(model_data_file)
     else:
