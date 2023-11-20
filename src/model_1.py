@@ -1,5 +1,10 @@
 """
-Model 1:
+Model 1
+
+Data: Line normalized in x and y
+Encoding: Amplitude
+Cost: Expected value of H = 1 - |y><y|
+Conv: Hur Kim Park 3
 """
 
 import utils
@@ -18,7 +23,7 @@ model_data_file = os.path.join("data", "model_1.hdf5")
 
 def new_dataset(x_min, x_max, dataset_size):
     x = np.linspace(x_min, x_max, num=dataset_size)
-    y = np.random.rand(1) * x
+    y = 0.5 * x
 
     A = 1.0 / np.sqrt(np.dot(x, x))
     B = 1.0 / np.sqrt(np.dot(y, y))
