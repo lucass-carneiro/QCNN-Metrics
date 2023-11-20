@@ -1,7 +1,7 @@
 """
-Model Type 0:
-Encoding: Amplitude
-Cost: Expected value of H = 1 - |y><y|
+Model Type 1:
+Encoding: RY
+Cost: RMS
 """
 
 import pennylane as qml
@@ -15,7 +15,7 @@ import h5py
 import os
 
 
-class ModelType0:
+class ModelType1:
     def __init__(self, name, x, y, conv_layer):
         self.name = name
         self.x = x
@@ -61,7 +61,7 @@ class ModelType0:
             os.makedirs(self.data_folder)
 
         # Device creation
-        self.num_qubits = int(np.log2(self.dataset_size))
+        self.num_qubits = self.dataset_size
 
         self.q_device = qml.device(
             "default.qubit",
@@ -72,6 +72,10 @@ class ModelType0:
         # We assume that number of blocks = number of qubits
         self.num_params = self.conv_layer.ppb * self.num_qubits
 
+    def encode(self, data):
+        for i in range(self.num_qubits):
+            qml.RY(2 * data[i], i)
+
     def qcnn(self, p):
         qubit_range = range(self.num_qubits + 1)
         for previous, current in zip(qubit_range, qubit_range[1:]):
@@ -81,23 +85,8 @@ class ModelType0:
             )
 
     def ansatz(self, x, p):
-        qml.AmplitudeEmbedding(
-            features=x,
-            wires=range(self.num_qubits),
-            normalize=True
-        )
+        self.encode(x)
         self.qcnn(p)
-
-    def cost_hamiltonian(self):
-        ket_y = np.reshape(self.y, (self.dataset_size, 1))
-        bra_y = np.transpose(ket_y)
-
-        ket_y_bra_y = np.dot(ket_y, bra_y)
-        identity = np.identity(self.dataset_size)
-
-        H = identity - ket_y_bra_y
-
-        return qml.pauli_decompose(H)
 
     def draw(self):
         def qcnn_func():
@@ -155,14 +144,19 @@ class ModelType0:
             fm.create_dataset("qfm", data=qfm)
 
     def optimize(self, max_iters: int, abstol: float):
-        H = self.cost_hamiltonian()
-
         # Cost and cost node
-        def cost(p):
+        def cost_circuit(p):
             self.ansatz(self.x, p)
-            return qml.expval(H)
+            return [qml.expval(qml.PauliZ(i)) for i in range(self.num_qubits)]
 
-        cost_node = qml.QNode(cost, self.q_device, interface="numpy")
+        cost_node = qml.QNode(cost_circuit, self.q_device, interface="numpy")
+
+        def cost(p):
+            xi = np.arccos(cost_node(p))/2
+            ymxi = (self.y - xi)
+            abs_sq_ymxi = np.dot(ymxi, ymxi)
+            sum_abs_sq_ymxi = np.sum(abs_sq_ymxi)
+            return np.sqrt(sum_abs_sq_ymxi / self.dataset_size)
 
         # Optimization parameters and cost vector
         cost_data = []
@@ -178,7 +172,7 @@ class ModelType0:
         stopping_criteria = "max iterations reached"
 
         for i in range(max_iters):
-            params, loss = opt.step_and_cost(cost_node, params)
+            params, loss = opt.step_and_cost(cost, params)
             cost_data.append(loss)
             print("Loss in teration", i, "=", loss)
 
@@ -261,10 +255,10 @@ class ModelType0:
         # QCNN state and node
         def ansatz_func(P):
             self.ansatz(x, P)
-            return qml.state()
+            return [qml.expval(qml.PauliZ(i)) for i in range(self.num_qubits)]
 
         ansatz_node = qml.QNode(ansatz_func, self.q_device)
-        x_theta = np.real(ansatz_node(p))
+        x_theta = np.arccos(ansatz_node(p)) / 2
         print("Original data")
         print(y)
         print("Trained data")
@@ -310,10 +304,10 @@ class ModelType0:
         # QCNN state and node
         def ansatz_func(P):
             self.ansatz(x, P)
-            return qml.state()
+            return [qml.expval(qml.PauliZ(i)) for i in range(self.num_qubits)]
 
         ansatz_node = qml.QNode(ansatz_func, self.q_device)
-        x_theta = np.real(ansatz_node(p))
+        x_theta = np.arccos(ansatz_node(p)) / 2
         print("Original data")
         print(y)
         print("Trained data")

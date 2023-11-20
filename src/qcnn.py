@@ -18,6 +18,7 @@ Options:
 from docopt import docopt
 
 import model_0
+import model_1
 
 import subprocess
 import shutil
@@ -54,6 +55,8 @@ def main(args):
         match int(args["<model-id>"]):
             case 0:
                 model_0.process(args)
+            case 1:
+                model_1.process(args)
 
     elif (args["archive"]):
         archive(args)

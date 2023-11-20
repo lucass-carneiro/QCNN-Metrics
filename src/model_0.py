@@ -5,8 +5,8 @@ Block: HurKimPark1
 Data: Line with constant slope
 """
 
-from conv_layers import HurKimPark1
-from model_type_0 import ModelType0
+from conv_layers import HurKimPark1 as conv_layer
+from model_type_0 import ModelType0 as ModelType
 
 import pennylane.numpy as np
 
@@ -34,11 +34,11 @@ def process(args):
     training_x, training_y = new_dataset(-1.0, 1.0, dataset_size)
     validation_x, validation_y = new_dataset(1.0, 3.0, dataset_size)
 
-    model = ModelType0(
+    model = ModelType(
         "model_0",
         training_x,
         training_y,
-        HurKimPark1
+        conv_layer
     )
 
     model.draw()
