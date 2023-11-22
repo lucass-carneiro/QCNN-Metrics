@@ -19,6 +19,10 @@ from docopt import docopt
 
 import model_0
 import model_1
+import model_2
+import model_3
+import model_4
+import model_5
 
 import subprocess
 import shutil
@@ -57,6 +61,14 @@ def main(args):
                 model_0.process(args)
             case 1:
                 model_1.process(args)
+            case 2:
+                model_2.process(args)
+            case 3:
+                model_3.process(args)
+            case 4:
+                model_4.process(args)
+            case 5:
+                model_5.process(args)
 
     elif (args["archive"]):
         archive(args)

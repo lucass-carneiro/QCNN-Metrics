@@ -1,22 +1,27 @@
 """
 Model 1:
-Type: 1
-Block: HurKimPark1
+Type: 0
+Block: HurKimPark3
 Data: Line with constant slope
+Notes:
+ * Good for fitting up to 8 data points
 """
 
-from conv_layers import HurKimPark1 as conv_layer
-from model_type_1 import ModelType1 as ModelType
+from conv_layers import HurKimPark3 as conv_layer
+from model_type_0 import ModelType0 as ModelType
 
 import pennylane.numpy as np
 
 
 def new_dataset(x_min, x_max, dataset_size):
     x = np.linspace(x_min, x_max, num=dataset_size)
-    A = 1.0 / np.sqrt(np.dot(x, x))
-    x = A * x
-
     y = 0.5 * x
+
+    A = 1.0 / np.sqrt(np.dot(x, x))
+    B = 1.0 / np.sqrt(np.dot(y, y))
+
+    x = A * x
+    y = B * y
 
     return x, y
 

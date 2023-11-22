@@ -141,7 +141,9 @@ class ModelType1:
         with h5py.File(self.fisher_data_file, "w") as f:
             fm = f.create_group("fisher_matrix")
             fm.create_dataset("cfm", data=cfm)
-            fm.create_dataset("qfm", data=qfm)
+
+            if qfm != None:
+                fm.create_dataset("qfm", data=qfm)
 
     def optimize(self, max_iters: int, abstol: float):
         # Cost and cost node
@@ -153,10 +155,8 @@ class ModelType1:
 
         def cost(p):
             xi = np.arccos(cost_node(p))/2
-            ymxi = (self.y - xi)
-            abs_sq_ymxi = np.dot(ymxi, ymxi)
-            sum_abs_sq_ymxi = np.sum(abs_sq_ymxi)
-            return np.sqrt(sum_abs_sq_ymxi / self.dataset_size)
+            ymxi = np.sum((self.y - xi)**2)
+            return np.sqrt(ymxi / self.dataset_size)
 
         # Optimization parameters and cost vector
         cost_data = []
@@ -240,9 +240,13 @@ class ModelType1:
 
         return samples
 
-    def compute_fishers(self, fisher_samples=100):
+    def compute_fishers(self, skip_quantum=True, fisher_samples=100):
         cfm = self.classical_fisher(fisher_samples)
-        qfm = self.quantum_fisher(fisher_samples)
+
+        if not skip_quantum:
+            qfm = self.quantum_fisher(fisher_samples)
+        else:
+            qfm = None
 
         self.save_fisher(cfm, qfm)
 

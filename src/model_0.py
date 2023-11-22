@@ -3,6 +3,8 @@ Model 0:
 Type: 0
 Block: HurKimPark1
 Data: Line with constant slope
+Notes:
+ * Good for fitting up to 4 data points
 """
 
 from conv_layers import HurKimPark1 as conv_layer

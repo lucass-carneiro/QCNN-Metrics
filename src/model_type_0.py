@@ -83,8 +83,7 @@ class ModelType0:
     def ansatz(self, x, p):
         qml.AmplitudeEmbedding(
             features=x,
-            wires=range(self.num_qubits),
-            normalize=True
+            wires=range(self.num_qubits)
         )
         self.qcnn(p)
 
@@ -106,7 +105,7 @@ class ModelType0:
 
         def ansatz_func():
             self.ansatz(
-                [1.0] * self.dataset_size,
+                self.x,
                 [0.0] * self.conv_layer.ppb * self.num_qubits
             )
             return qml.state()
@@ -152,7 +151,9 @@ class ModelType0:
         with h5py.File(self.fisher_data_file, "w") as f:
             fm = f.create_group("fisher_matrix")
             fm.create_dataset("cfm", data=cfm)
-            fm.create_dataset("qfm", data=qfm)
+
+            if qfm != None:
+                fm.create_dataset("qfm", data=qfm)
 
     def optimize(self, max_iters: int, abstol: float):
         H = self.cost_hamiltonian()
@@ -246,9 +247,13 @@ class ModelType0:
 
         return samples
 
-    def compute_fishers(self, fisher_samples=100):
+    def compute_fishers(self, skip_quantum=True, fisher_samples=100):
         cfm = self.classical_fisher(fisher_samples)
-        qfm = self.quantum_fisher(fisher_samples)
+
+        if not skip_quantum:
+            qfm = self.quantum_fisher(fisher_samples)
+        else:
+            qfm = None
 
         self.save_fisher(cfm, qfm)
 

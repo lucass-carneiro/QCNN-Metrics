@@ -24,6 +24,25 @@ class VatanWilliams:
 
 
 @dataclass
+class FreeVatanWilliams:
+    """Modification of VatanWilliams with all free parameters"""
+
+    name: str = "Free Vatan - Williams"
+    ppb: int = 5
+    nqubits: int = 2
+
+    def layer(p, w):
+        qml.RZ(p[0], wires=w[1])
+        qml.CNOT(wires=[w[1], w[0]])
+        qml.RZ(p[1], wires=w[0])
+        qml.RY(p[2], wires=w[1])
+        qml.CNOT(wires=[w[0], w[1]])
+        qml.RY(p[3], wires=w[1])
+        qml.CNOT(wires=[w[1], w[0]])
+        qml.RZ(p[4], wires=w[0])
+
+
+@dataclass
 class HurKimPark1:
     """See https://arxiv.org/abs/2108.00661"""
 
@@ -133,7 +152,7 @@ class HurKimPark7:
         qml.RZ(p[2], wires=w[0])
         qml.RZ(p[3], wires=w[1])
         qml.CRZ(p[4], wires=[w[1], w[0]])
-        qml.CRZ(p[5], wires=[w[0], w[0]])
+        qml.CRZ(p[5], wires=[w[0], w[1]])
         qml.RX(p[6], wires=w[0])
         qml.RX(p[7], wires=w[1])
         qml.RZ(p[8], wires=w[0])
@@ -153,7 +172,7 @@ class HurKimPark8:
         qml.RZ(p[2], wires=w[0])
         qml.RZ(p[3], wires=w[1])
         qml.CRX(p[4], wires=[w[1], w[0]])
-        qml.CRX(p[5], wires=[w[0], w[0]])
+        qml.CRX(p[5], wires=[w[0], w[1]])
         qml.RX(p[6], wires=w[0])
         qml.RX(p[7], wires=w[1])
         qml.RZ(p[8], wires=w[0])
