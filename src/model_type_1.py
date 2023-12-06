@@ -128,7 +128,7 @@ class ModelType1:
         with h5py.File(self.training_data_file, "w") as f:
             td = f.create_group("trainig_data")
 
-            td.attrs["model_type"] = 0
+            td.attrs["model_type"] = 1
             td.attrs["convolutional_block"] = self.conv_layer.name
 
             td.create_dataset("iterations", dtype=int, data=range(i + 1))

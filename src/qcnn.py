@@ -23,6 +23,7 @@ import model_2
 import model_3
 import model_4
 import model_5
+import model_6
 
 import subprocess
 import shutil
@@ -69,6 +70,8 @@ def main(args):
                 model_4.process(args)
             case 5:
                 model_5.process(args)
+            case 6:
+                model_6.process(args)
 
     elif (args["archive"]):
         archive(args)
