@@ -26,7 +26,8 @@ class ModelType3:
             x,
             y,
             num_qubits,
-            model):
+            model,
+            model_fisher):
 
         self.name = name
 
@@ -35,6 +36,7 @@ class ModelType3:
 
         self.num_qubits = num_qubits
         self.model = model
+        self.model_fisher = model_fisher
 
         # Dataset validation
         if len(self.x) != len(self.y):
@@ -132,14 +134,6 @@ class ModelType3:
             td.create_dataset("training_set", dtype=float, data=self.x)
             td.create_dataset("target_set", dtype=float, data=self.y)
 
-    def save_fisher(self, cfm, qfm):
-        with h5py.File(self.fisher_data_file, "w") as f:
-            fm = f.create_group("fisher_matrix")
-            fm.create_dataset("cfm", data=cfm)
-
-            if qfm != None:
-                fm.create_dataset("qfm", data=qfm)
-
     def optimize(self, weights, batch_size: int, max_iters: int, abstol: float):
         model_node = qml.QNode(self.model, self.q_device)
 
@@ -207,58 +201,20 @@ class ModelType3:
         # Save Data
         self.save_training_data(stopping_criteria, i, cost_data, weights)
 
-    def classical_fisher(self, fisher_samples):
+    def compute_fisher(self, x, param_shape, fisher_samples=100):
         print("Computing classical fisher")
 
-        def func(p):
-            self.qcnn(p)
-            return qml.probs(wires=range(self.num_qubits))
-
-        ansatz_node = qml.QNode(func, self.q_device)
-
-        samples = []
+        node = qml.QNode(self.model_fisher, self.q_device)
         rng = np.random.default_rng()
+        samples = []
 
         for _ in range(fisher_samples):
-            params = rng.uniform(low=-np.pi, high=np.pi, size=self.num_params)
-            samples.append(qml.qinfo.classical_fisher(ansatz_node)(params))
+            params = 2 * np.pi * np.random.random(size=param_shape)
+            samples.append(qml.qinfo.classical_fisher(node)(params, x))
 
-        return samples
-
-    def quantum_fisher(self, fisher_samples):
-        print("Computing quantum Fisher")
-
-        # QCNN state and node
-        q_device = qml.device(
-            "default.qubit",
-            wires=self.num_qubits + 1,
-            shots=None
-        )
-
-        def qcnn_func(p):
-            self.qcnn(p)
-            return qml.probs(wires=range(self.num_qubits))
-
-        qcnn_node = qml.QNode(qcnn_func, q_device)
-
-        samples = []
-        rng = np.random.default_rng()
-
-        for _ in range(fisher_samples):
-            params = rng.uniform(low=-np.pi, high=np.pi, size=self.num_params)
-            samples.append(qml.qinfo.quantum_fisher(qcnn_node)(params))
-
-        return samples
-
-    def compute_fishers(self, skip_fisher=True, fisher_samples=100):
-        cfm = self.classical_fisher(fisher_samples)
-
-        if not skip_fisher:
-            qfm = self.quantum_fisher(fisher_samples)
-        else:
-            qfm = None
-
-        self.save_fisher(cfm, qfm)
+        with h5py.File(self.fisher_data_file, "w") as f:
+            fm = f.create_group("fisher_matrix")
+            fm.create_dataset("cfm", data=samples)
 
     def plot_training_error(self, font_size=18):
         with h5py.File(self.training_data_file, "r") as f:
@@ -352,12 +308,9 @@ class ModelType3:
         f.tight_layout()
         f.savefig(self.validation_plot_file, bbox_inches="tight")
 
-    def plot_fisher_spectrum(self, quantum=False, font_size=18):
+    def plot_fisher_spectrum(self, font_size=18):
         with h5py.File(self.fisher_data_file, "r") as f:
-            if quantum:
-                fm = np.array(f.get("fisher_matrix/qfm"))
-            else:
-                fm = np.array(f.get("fisher_matrix/cfm"))
+            fm = np.array(f.get("fisher_matrix/cfm"))
 
         np.set_printoptions(linewidth=200)
 

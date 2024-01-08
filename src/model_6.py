@@ -93,12 +93,18 @@ def entangling_circuit(weights, x=None):
     return qml.expval(qml.PauliZ(wires=0))
 
 
+def fisher_circuit(weights, x):
+    W(weights[0])
+    S(x)
+    W(weights[1])
+    return qml.probs(wires=range(num_qubits))
+
+
 def process(args):
     dataset_size = int(args["<dataset-size>"])
     max_iters = int(args["--max-iters"])
     abstol = float(args["--abstol"])
     fisher_samples = int(args["--fisher-samples"])
-    quantum = bool(args["--quantum"])
 
     t_x, t_y = new_dataset(-2 * np.pi, 2 * np.pi, dataset_size)
     v_x, v_y = new_dataset(3 * np.pi, 7 * np.pi, dataset_size)
@@ -108,8 +114,8 @@ def process(args):
         t_x,
         t_y,
         num_qubits,
-        entangling_circuit
-        # qcnn_circuit
+        entangling_circuit,
+        fisher_circuit
     )
 
     # Initial parameters
@@ -124,5 +130,5 @@ def process(args):
     model.optimize(weights, batch_size, max_iters, abstol)
     model.plot_training_error()
     model.plot_validation_error(v_x, v_y)
-    # model.compute_fishers(fisher_samples)
-    # model.plot_fisher_spectrum(quantum)
+    model.compute_fisher(0.0, param_shape, fisher_samples)
+    model.plot_fisher_spectrum()
