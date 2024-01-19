@@ -1,17 +1,18 @@
 """
-Model 6:
+Model 7:
 Type: 3
-Block: HurKimPark6
+Block: HurKimPark9
 Data:
 Notes:
 """
 
-from conv_layers import HurKimPark6 as conv_layer
+from conv_layers import HurKimPark9 as conv_layer
 
 from model_type_3 import ModelType3 as ModelType
 
 import pennylane as qml
 import pennylane.numpy as np
+
 
 # Set higher to fit more modes
 num_qubits = 3
@@ -67,7 +68,7 @@ def process(args):
     v_x, v_y = new_dataset(3 * np.pi, 7 * np.pi, dataset_size)
 
     model = ModelType(
-        "model_6",
+        "model_9",
         t_x,
         t_y,
         num_qubits,

@@ -243,8 +243,8 @@ class ModelType3:
         f, (ax1, ax2) = plt.subplots(1, 2, subplot_kw=dict(box_aspect=1))
 
         # Fit
-        ax1.scatter(x, y, label="Input data", color="black")
-        ax1.scatter(x, predictions, label="Trained", color="red")
+        ax1.plot(x, y, label="Input data", color="black")
+        ax1.plot(x, predictions, label="Trained", color="red")
 
         ax1.set_aspect("equal", adjustable="datalim")
         ax1.legend()
@@ -253,7 +253,7 @@ class ModelType3:
         ax1.set_ylabel("$y$", fontsize=font_size)
 
         # Error
-        ax2.scatter(x, error, color="black")
+        ax2.plot(x, error, color="black")
 
         ax1.set_aspect("equal", adjustable="datalim")
 
@@ -288,8 +288,8 @@ class ModelType3:
         f, (ax1, ax2) = plt.subplots(1, 2, subplot_kw=dict(box_aspect=1))
 
         # Fit
-        ax1.scatter(x, y, label="Input data", color="black")
-        ax1.scatter(x, predictions, label="Trained", color="red")
+        ax1.plot(x, y, label="Input data", color="black")
+        ax1.plot(x, predictions, label="Trained", color="red")
 
         ax1.set_aspect("equal", adjustable="datalim")
         ax1.legend()
@@ -298,7 +298,7 @@ class ModelType3:
         ax1.set_ylabel("$y$", fontsize=font_size)
 
         # Error
-        ax2.scatter(x, error, color="black")
+        ax2.plot(x, error, color="black")
 
         ax1.set_aspect("equal", adjustable="datalim")
 

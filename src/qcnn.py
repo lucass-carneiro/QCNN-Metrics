@@ -10,7 +10,7 @@ Options:
   --max-iters=<iters>         Maximun number of steps to take while training [default: 1000].
   --abstol=<abstol>           Absolute tolerance. Training stops if abs(cost) < abstol [default: 1.0e-4].
   --fisher-samples=<samples>  How many times to compute Fisher matrices using random parameters [default: 100].
-  --quantum                   Plots the spectrum of the Quantum Fisher Matrix, instead of the classical spectrum   
+  --quantum                   Plots the spectrum of the Quantum Fisher Matrix, instead of the classical spectrum.
   -h --help                   Show this screen.
   --version                   Show version.
 """
@@ -24,6 +24,12 @@ import model_3
 import model_4
 import model_5
 import model_6
+import model_7
+import model_8
+import model_9
+import model_10
+import model_11
+import model_12
 
 import subprocess
 import shutil
@@ -72,6 +78,18 @@ def main(args):
                 model_5.process(args)
             case 6:
                 model_6.process(args)
+            case 7:
+                model_7.process(args)
+            case 8:
+                model_8.process(args)
+            case 9:
+                model_9.process(args)
+            case 10:
+                model_10.process(args)
+            case 11:
+                model_11.process(args)
+            case 12:
+                model_12.process(args)
 
     elif (args["archive"]):
         archive(args)
