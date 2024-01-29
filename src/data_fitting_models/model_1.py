@@ -1,14 +1,14 @@
 """
-Model 3:
+Model 1:
 Type: 0
-Block: HurKimPark1
+Block: HurKimPark3
 Data: Line with constant slope
 Notes:
- * Shows that this conv circuit fails with more than 4 points
+ * Good for fitting up to 8 data points
 """
 
-from conv_layers import HurKimPark1 as conv_layer
-from model_type_0 import ModelType0 as ModelType
+from data_fitting_models.conv_layers import HurKimPark3 as conv_layer
+from data_fitting_models.model_type_0 import ModelType0 as ModelType
 
 import pennylane.numpy as np
 
@@ -37,7 +37,7 @@ def process(args):
     validation_x, validation_y = new_dataset(1.0, 3.0, dataset_size)
 
     model = ModelType(
-        "model_3",
+        "model_1",
         training_x,
         training_y,
         conv_layer

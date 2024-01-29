@@ -8,8 +8,8 @@ Notes:
  * Fits a shifted line
 """
 
-from conv_layers import HurKimPark6 as conv_layer
-from model_type_1 import ModelType1 as ModelType
+from data_fitting_models.conv_layers import HurKimPark6 as conv_layer
+from data_fitting_models.model_type_1 import ModelType1 as ModelType
 
 import pennylane.numpy as np
 

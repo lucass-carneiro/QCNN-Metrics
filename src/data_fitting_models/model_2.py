@@ -7,8 +7,8 @@ Notes:
  * Shows that a good spectrum != good fit
 """
 
-from conv_layers import VatanWilliams as conv_layer
-from model_type_0 import ModelType0 as ModelType
+from data_fitting_models.conv_layers import VatanWilliams as conv_layer
+from data_fitting_models.model_type_0 import ModelType0 as ModelType
 
 import pennylane.numpy as np
 

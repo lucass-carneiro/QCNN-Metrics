@@ -17,19 +17,19 @@ Options:
 
 from docopt import docopt
 
-import model_0
-import model_1
-import model_2
-import model_3
-import model_4
-import model_5
-import model_6
-import model_7
-import model_8
-import model_9
-import model_10
-import model_11
-import model_12
+import data_fitting_models.model_0 as model_0
+import data_fitting_models.model_1 as model_1
+import data_fitting_models.model_2 as model_2
+import data_fitting_models.model_3 as model_3
+import data_fitting_models.model_4 as model_4
+import data_fitting_models.model_5 as model_5
+import data_fitting_models.model_6 as model_6
+import data_fitting_models.model_7 as model_7
+import data_fitting_models.model_8 as model_8
+import data_fitting_models.model_9 as model_9
+import data_fitting_models.model_10 as model_10
+import data_fitting_models.model_11 as model_11
+import data_fitting_models.model_12 as model_12
 
 import subprocess
 import shutil

@@ -1,24 +1,27 @@
 """
-Model 5:
-Type: 2
-Block: HurKimPark6
-Data: Shifted straight line
+Model 3:
+Type: 0
+Block: HurKimPark1
+Data: Line with constant slope
 Notes:
- * Good training fit, bad prediction.
- * Fits a shifted line
+ * Shows that this conv circuit fails with more than 4 points
 """
 
-from conv_layers import HurKimPark6 as conv_layer
-from model_type_2 import ModelType2 as ModelType
+from data_fitting_models.conv_layers import HurKimPark1 as conv_layer
+from data_fitting_models.model_type_0 import ModelType0 as ModelType
 
 import pennylane.numpy as np
 
 
 def new_dataset(x_min, x_max, dataset_size):
     x = np.linspace(x_min, x_max, num=dataset_size)
-    x = x / np.sqrt(np.dot(x, x))
+    y = 0.5 * x
 
-    y = 0.5 * x + 0.5
+    A = 1.0 / np.sqrt(np.dot(x, x))
+    B = 1.0 / np.sqrt(np.dot(y, y))
+
+    x = A * x
+    y = B * y
 
     return x, y
 
@@ -30,11 +33,11 @@ def process(args):
     fisher_samples = int(args["--fisher-samples"])
     quantum = bool(args["--quantum"])
 
-    training_x, training_y = new_dataset(-1, 1, dataset_size)
-    validation_x, validation_y = new_dataset(2, 4, dataset_size)
+    training_x, training_y = new_dataset(-1.0, 1.0, dataset_size)
+    validation_x, validation_y = new_dataset(1.0, 3.0, dataset_size)
 
     model = ModelType(
-        "model_5",
+        "model_3",
         training_x,
         training_y,
         conv_layer

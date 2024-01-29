@@ -1,14 +1,13 @@
 """
 Model 7:
 Type: 3
-Block: HurKimPark9
+Block: FreeVatanWilliams
 Data:
 Notes:
 """
 
-from conv_layers import HurKimPark9 as conv_layer
-
-from model_type_3 import ModelType3 as ModelType
+from data_fitting_models.conv_layers import FreeVatanWilliams as conv_layer
+from data_fitting_models.model_type_3 import ModelType3 as ModelType
 
 import pennylane as qml
 import pennylane.numpy as np
@@ -68,7 +67,7 @@ def process(args):
     v_x, v_y = new_dataset(3 * np.pi, 7 * np.pi, dataset_size)
 
     model = ModelType(
-        "model_9",
+        "model_12",
         t_x,
         t_y,
         num_qubits,

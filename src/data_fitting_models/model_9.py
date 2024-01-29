@@ -1,16 +1,16 @@
 """
 Model 7:
 Type: 3
-Block: StronglyEntanglingLayers
+Block: HurKimPark9
 Data:
 Notes:
 """
 
-from model_type_3 import ModelType3 as ModelType
+from data_fitting_models.conv_layers import HurKimPark9 as conv_layer
+from data_fitting_models.model_type_3 import ModelType3 as ModelType
 
 import pennylane as qml
 import pennylane.numpy as np
-from pennylane.templates import StronglyEntanglingLayers
 
 
 # Set higher to fit more modes
@@ -24,6 +24,14 @@ def new_dataset(x_min, x_max, dataset_size):
     return x, y
 
 
+def conv_block(p):
+    qml.Barrier(wires=range(num_qubits))
+    conv_layer.layer(p[0], [0, 1])
+    conv_layer.layer(p[1], [1, 2])
+    conv_layer.layer(p[2], [2, 0])
+    qml.Barrier(wires=range(num_qubits))
+
+
 def S(x):
     """Data encoding circuit block."""
     for w in range(num_qubits):
@@ -32,7 +40,7 @@ def S(x):
 
 def W(theta):
     """Trainable circuit block."""
-    StronglyEntanglingLayers(theta, wires=range(num_qubits))
+    conv_block(theta)
 
 
 def entangling_circuit(weights, x=None):
@@ -59,7 +67,7 @@ def process(args):
     v_x, v_y = new_dataset(3 * np.pi, 7 * np.pi, dataset_size)
 
     model = ModelType(
-        "model_11",
+        "model_9",
         t_x,
         t_y,
         num_qubits,
@@ -68,10 +76,9 @@ def process(args):
     )
 
     # Initial parameters
-    trainable_block_layers = 5
     batch_size = 25
 
-    param_shape = (2, trainable_block_layers, num_qubits, 3)
+    param_shape = (2, num_qubits, conv_layer.ppb)
     weights = 2 * np.pi * np.random.random(size=param_shape)
 
     # Processing

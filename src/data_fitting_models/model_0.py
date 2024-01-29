@@ -7,8 +7,8 @@ Notes:
  * Good for fitting up to 4 data points
 """
 
-from conv_layers import HurKimPark1 as conv_layer
-from model_type_0 import ModelType0 as ModelType
+from data_fitting_models.conv_layers import HurKimPark1 as conv_layer
+from data_fitting_models.model_type_0 import ModelType0 as ModelType
 
 import pennylane.numpy as np
 
