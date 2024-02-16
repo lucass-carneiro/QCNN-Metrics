@@ -237,7 +237,7 @@ def entangling_circuit(weights, x=None):
 
 def process():
     dataset_size = 100
-    max_iters = 100
+    max_iters = 1000
     abstol = 1.0e-3
 
     # Data
