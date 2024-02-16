@@ -108,6 +108,25 @@ def plot_fit_error(folders: ModelFolders, circuit, device, weights, data, target
     plt.savefig(os.path.join(folders.img_folder, "error.pdf"))
 
 
+def plot_derivative_error(folders: ModelFolders, circuit, device, weights, data, derivative):
+    print("Plotting derivative error")
+
+    node = qml.QNode(circuit, device)
+    f = [circuit_derivative(circuit, device, weights, x_) for x_ in data]
+
+    err = np.abs(derivative - f)
+
+    plt.close("all")
+
+    plt.plot(data, err, color=line_color, linewidth=line_thickness)
+
+    plt.xlabel("x", fontsize=font_size)
+    plt.ylabel("Derivative Error", fontsize=font_size)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(folders.img_folder, "deriv_error.pdf"))
+
+
 def save_training_data(folders: ModelFolders, stopping_criteria, last_iter, cost_data, weights):
     print("Saving training data")
 
@@ -209,26 +228,27 @@ def process():
     # Data
     x = np.linspace(-np.pi, np.pi, num=dataset_size, endpoint=True)
     y = np.sin(x)
+    yp = np.cos(x)
 
     # Initial weights
     trainable_block_layers = 3
     param_shape = (2, trainable_block_layers, num_qubits, 3)
     weights = 2 * np.pi * np.random.random(size=param_shape)
 
-    # draw_circuit(folders, entangling_circuit, device, weights, 0.0)
-    # fit_to_target(folders, entangling_circuit, device, weights, x, y, params)
+    # Fit
+    draw_circuit(folders, entangling_circuit, device, weights, 0.0)
+    fit_to_target(folders, entangling_circuit, device, weights, x, y, params)
 
+    # Plots
     with h5py.File(folders.training_data_file, "r") as f:
-        # iters = f["trainig_data"].attrs["iterations"]
-        # cost = np.array(f.get("trainig_data/cost"))
+        i = int(f["trainig_data"].attrs["iterations"])
+        c = np.array(f.get("trainig_data/cost"))
         w = np.array(f.get("trainig_data/weights"))
-        # plot_cost(folders, iters, cost)
-        # plot_fit_error(folders, entangling_circuit, device, w, x, y)
-        # plot_circuit_function(folders, entangling_circuit, device, w, x)
-        f = [circuit_derivative(entangling_circuit, device, w, x_) for x_ in x]
-        plt.plot(x, f)
-        plt.plot(x, np.cos(x))
-        plt.show()
+
+        plot_cost(folders, i, c)
+        plot_fit_error(folders, entangling_circuit, device, w, x, y)
+        plot_circuit_function(folders, entangling_circuit, device, w, x)
+        plot_derivative_error(folders, entangling_circuit, device, w, x, yp)
 
 
 process()
