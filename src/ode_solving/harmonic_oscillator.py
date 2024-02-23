@@ -101,18 +101,22 @@ def save_training_data(folders: ModelFolders, stopping_criteria, last_iter, cost
         td.create_dataset("cost", data=cost_data)
         td.create_dataset("weights", dtype=float, data=weights)
 
+# f'(x) = -sen(x)
+# f(-pi) = cos(-pi) = -1
+# f(x) = cos(x)
 
-def cost_pointwise(node, weights, x):
-    f = node(weights, x=x)
+
+def cost_int_pointwise(node, weights, x):
     f_prime = (node(weights, x=(x + np.pi / 2)) +
                node(weights, x=(x - np.pi / 2)))/2
-    f_bnd = node(weights, x=-np.pi)
 
-    return f_prime - f + f_bnd
+    return f_prime + np.sin(x)
 
 
 def cost(node, weights, data):
-    return np.sqrt(sum(np.abs(cost_pointwise(node, weights, x))**2 for x in data))
+    N = len(data)
+    f_bnd = np.abs(-1 - node(weights, x=-np.pi))
+    return (np.sqrt(sum(np.abs(cost_int_pointwise(node, weights, x))**2 for x in data[1:])) + f_bnd) / N
 
 
 def optimize(folders: ModelFolders, circuit, device, weights, data, params: OptimizerParams):
