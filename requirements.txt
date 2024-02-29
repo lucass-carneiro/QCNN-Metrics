@@ -5,5 +5,9 @@ h5py
 matplotlib
 qiskit
 pylatexenc
+
 pennylane
 pennylane-qiskit
+pennylane-lightning
+pennylane-lightning[gpu]
+pennylane-lightning[kokkos]
