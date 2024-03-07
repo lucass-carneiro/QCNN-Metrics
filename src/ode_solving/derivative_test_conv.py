@@ -1,6 +1,8 @@
+
 import pennylane as qml
-from pennylane.templates import StronglyEntanglingLayers
 from pennylane import numpy as np
+
+from conv_layers import FreeVatanWilliams as conv_layer
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -10,10 +12,9 @@ import h5py
 import os
 
 num_qubits = 3
-trainable_block_layers = 3
 dataset_size = 100
 
-folder_name = "derivative_test"
+folder_name = "derivative_test_conv"
 
 max_iters = 100
 abstol = 1.0e-2
@@ -215,13 +216,23 @@ def circuit_derivative(circuit, device, weights, x):
     return (fp - fm)/2
 
 
+def conv_block(p):
+    qml.Barrier(wires=range(num_qubits))
+    conv_layer.layer(p[0], [0, 1])
+    conv_layer.layer(p[1], [1, 2])
+    conv_layer.layer(p[2], [2, 0])
+    qml.Barrier(wires=range(num_qubits))
+
+
 def S(x):
+    """Data encoding circuit block."""
     for w in range(num_qubits):
         qml.RX(x, wires=w)
 
 
 def W(theta):
-    StronglyEntanglingLayers(theta, wires=range(num_qubits))
+    """Trainable circuit block."""
+    conv_block(theta)
 
 
 def entangling_circuit(weights, x=None):
@@ -247,7 +258,7 @@ def main():
     yp = np.cos(x)
 
     # Initial weights
-    param_shape = (2, trainable_block_layers, num_qubits, 3)
+    param_shape = (2, num_qubits, conv_layer.ppb)
     weights = 2 * np.pi * np.random.random(size=param_shape)
 
     # Fit
