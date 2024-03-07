@@ -142,6 +142,24 @@ def plot_derivative_error(folders: ModelFolders, circuit, device, weights, data,
     plt.savefig(os.path.join(folders.img_folder, "deriv_error.pdf"))
 
 
+def plot_second_derivative_error(folders: ModelFolders, circuit, device, weights, data, second_deriv):
+    print("Plotting second derivative error")
+
+    f = [circuit_derivative_2(circuit, device, weights, x_) for x_ in data]
+
+    err = np.abs(second_deriv - f)
+
+    plt.close("all")
+
+    plt.plot(data, err, color=line_color, linewidth=line_thickness)
+
+    plt.xlabel("x", fontsize=font_size)
+    plt.ylabel("Second Derivative Error", fontsize=font_size)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(folders.img_folder, "second_deriv_error.pdf"))
+
+
 def save_training_data(folders: ModelFolders, stopping_criteria, last_iter, cost_data, weights):
     print("Saving training data")
 
@@ -215,6 +233,13 @@ def circuit_derivative(circuit, device, weights, x):
     return (fp - fm)/2
 
 
+def circuit_derivative_2(circuit, device, weights, x):
+    node = qml.QNode(circuit, device)
+    fp = node(weights, x=(x + np.pi))
+    fm = node(weights, x=(x - np.pi))
+    return (fp - fm) / 4
+
+
 def conv_block(p):
     qml.Barrier(wires=range(num_qubits))
     conv_layer.layer(p[0], [0, 1])
@@ -255,6 +280,7 @@ def main():
     x = np.linspace(-np.pi, np.pi, num=dataset_size, endpoint=True)
     y = np.sin(x)
     yp = np.cos(x)
+    ypp = -np.sin(x)
 
     # Initial weights
     param_shape = (2, num_qubits, conv_layer.ppb)
@@ -274,6 +300,8 @@ def main():
         plot_fit_error(folders, entangling_circuit, device, w, x, y)
         plot_circuit_function(folders, entangling_circuit, device, w, x)
         plot_derivative_error(folders, entangling_circuit, device, w, x, yp)
+        plot_second_derivative_error(
+            folders, entangling_circuit, device, w, x, ypp)
 
 
 if __name__ == "__main__":
