@@ -9,17 +9,13 @@ import h5py
 
 import os
 
-# These variables are used when using the kokkos backend
-os.environ["OMP_PROC_BIND"] = "spread"
-os.environ["OMP_PLACES"] = "threads"
-os.environ["OMP_NUM_THREADS"] = "3"
-
 num_qubits = 3
+trainable_block_layers = 3
 dataset_size = 100
 
 folder_name = "harmonic_oscillator"
 
-max_iters = 5000
+max_iters = 100
 abstol = 1.0e-2
 step_size = 1.0e-2
 
@@ -31,6 +27,11 @@ mpl.rcParams["mathtext.fontset"] = "cm"
 mpl.rcParams["font.family"] = "Latin Modern Roman"
 mpl.rcParams['xtick.labelsize'] = font_size
 mpl.rcParams['ytick.labelsize'] = font_size
+
+# These variables are used when using the kokkos backend
+os.environ["OMP_PROC_BIND"] = "spread"
+os.environ["OMP_PLACES"] = "threads"
+os.environ["OMP_NUM_THREADS"] = str(num_qubits)
 
 
 class ModelFolders:
@@ -170,8 +171,6 @@ def optimize(folders: ModelFolders, circuit, device, weights, data, params: Opti
 
     # Save Data
     save_training_data(folders, stopping_criteria, i, cost_data, weights)
-
-# Quantum circuits
 
 
 def S(x):

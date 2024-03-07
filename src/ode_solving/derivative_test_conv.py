@@ -127,7 +127,6 @@ def plot_fit_error(folders: ModelFolders, circuit, device, weights, data, target
 def plot_derivative_error(folders: ModelFolders, circuit, device, weights, data, derivative):
     print("Plotting derivative error")
 
-    node = qml.QNode(circuit, device)
     f = [circuit_derivative(circuit, device, weights, x_) for x_ in data]
 
     err = np.abs(derivative - f)

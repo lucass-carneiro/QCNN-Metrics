@@ -15,7 +15,7 @@ dataset_size = 100
 
 folder_name = "derivative_test"
 
-max_iters = 100
+max_iters = 500
 abstol = 1.0e-2
 step_size = 1.0e-2
 
@@ -126,7 +126,6 @@ def plot_fit_error(folders: ModelFolders, circuit, device, weights, data, target
 def plot_derivative_error(folders: ModelFolders, circuit, device, weights, data, derivative):
     print("Plotting derivative error")
 
-    node = qml.QNode(circuit, device)
     f = [circuit_derivative(circuit, device, weights, x_) for x_ in data]
 
     err = np.abs(derivative - f)
@@ -140,6 +139,24 @@ def plot_derivative_error(folders: ModelFolders, circuit, device, weights, data,
 
     plt.tight_layout()
     plt.savefig(os.path.join(folders.img_folder, "deriv_error.pdf"))
+
+
+def plot_second_derivative_error(folders: ModelFolders, circuit, device, weights, data, second_deriv):
+    print("Plotting second derivative error")
+
+    f = [circuit_derivative_2(circuit, device, weights, x_) for x_ in data]
+
+    err = np.abs(second_deriv - f)
+
+    plt.close("all")
+
+    plt.plot(data, err, color=line_color, linewidth=line_thickness)
+
+    plt.xlabel("x", fontsize=font_size)
+    plt.ylabel("Second Derivative Error", fontsize=font_size)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(folders.img_folder, "second_deriv_error.pdf"))
 
 
 def save_training_data(folders: ModelFolders, stopping_criteria, last_iter, cost_data, weights):
@@ -215,6 +232,13 @@ def circuit_derivative(circuit, device, weights, x):
     return (fp - fm)/2
 
 
+def circuit_derivative_2(circuit, device, weights, x):
+    node = qml.QNode(circuit, device)
+    fp = node(weights, x=(x + np.pi))
+    fm = node(weights, x=(x - np.pi))
+    return (fp - fm) / 4
+
+
 def S(x):
     for w in range(num_qubits):
         qml.RX(x, wires=w)
@@ -243,8 +267,9 @@ def main():
 
     # Data
     x = np.linspace(-np.pi, np.pi, num=dataset_size, endpoint=True)
-    y = np.sin(x)
-    yp = np.cos(x)
+    y = x**2 / (np.pi**2)
+    yp = (2 * x) / (np.pi**2)
+    ypp = np.full(len(yp), 2 / np.pi**2)
 
     # Initial weights
     param_shape = (2, trainable_block_layers, num_qubits, 3)
@@ -264,6 +289,8 @@ def main():
         plot_fit_error(folders, entangling_circuit, device, w, x, y)
         plot_circuit_function(folders, entangling_circuit, device, w, x)
         plot_derivative_error(folders, entangling_circuit, device, w, x, yp)
+        plot_second_derivative_error(
+            folders, entangling_circuit, device, w, x, ypp)
 
 
 if __name__ == "__main__":
