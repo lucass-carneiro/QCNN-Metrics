@@ -2,7 +2,7 @@
 import pennylane as qml
 from pennylane import numpy as np
 
-from conv_layers import FreeVatanWilliams as conv_layer
+from conv_layers import HurKimPark9 as conv_layer
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
