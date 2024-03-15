@@ -235,9 +235,10 @@ def circuit_derivative(circuit, device, weights, x):
 
 def circuit_derivative_2(circuit, device, weights, x):
     node = qml.QNode(circuit, device)
+    f = node(weights, x=x)
     fp = node(weights, x=(x + np.pi))
     fm = node(weights, x=(x - np.pi))
-    return (fp - fm) / 4
+    return (fm + fp - 2.0 * f) / 4
 
 
 def conv_block(p):

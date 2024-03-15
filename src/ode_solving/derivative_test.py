@@ -234,9 +234,10 @@ def circuit_derivative(circuit, device, weights, x):
 
 def circuit_derivative_2(circuit, device, weights, x):
     node = qml.QNode(circuit, device)
+    f = node(weights, x=x)
     fp = node(weights, x=(x + np.pi))
     fm = node(weights, x=(x - np.pi))
-    return (fp - fm) / 4
+    return (fm + fp - 2.0 * f) / 4
 
 
 def S(x):
@@ -267,9 +268,9 @@ def main():
 
     # Data
     x = np.linspace(-np.pi, np.pi, num=dataset_size, endpoint=True)
-    y = x**2 / (np.pi**2)
-    yp = (2 * x) / (np.pi**2)
-    ypp = np.full(len(yp), 2 / np.pi**2)
+    y = (np.pi - x) * (3 * np.pi + x) / (4 * np.pi * np.pi)
+    yp = - (np.pi - x) / (2 * np.pi * np.pi)
+    ypp = - 1 / (2 * np.pi * np.pi)
 
     # Initial weights
     param_shape = (2, trainable_block_layers, num_qubits, 3)
