@@ -9,7 +9,7 @@ import h5py
 
 import os
 
-num_qubits = 3
+num_qubits = 10
 trainable_block_layers = 3
 dataset_size = 100
 
@@ -267,10 +267,12 @@ def main():
     device = qml.device("lightning.kokkos", wires=num_qubits, shots=None)
 
     # Data
-    x = np.linspace(-np.pi, np.pi, num=dataset_size, endpoint=True)
+    # x = np.linspace(-np.pi, np.pi, num=dataset_size, endpoint=True)
+    x = np.array([-np.pi * np.cos(k * np.pi / (dataset_size - 1))
+                  for k in range(dataset_size)])
     y = (np.pi - x) * (3 * np.pi + x) / (4 * np.pi * np.pi)
     yp = - (np.pi - x) / (2 * np.pi * np.pi)
-    ypp = - 1 / (2 * np.pi * np.pi)
+    ypp = np.full(len(y), - 1 / (2 * np.pi * np.pi))
 
     # Initial weights
     param_shape = (2, trainable_block_layers, num_qubits, 3)
