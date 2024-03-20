@@ -159,18 +159,54 @@ def plot_second_derivative_error(folders: ModelFolders, circuit, device, weights
     plt.savefig(os.path.join(folders.img_folder, "second_deriv_error.pdf"))
 
 
-def save_training_data(folders: ModelFolders, stopping_criteria, last_iter, cost_data, weights):
+def save_training_data(folders: ModelFolders, stopping_criteria, first_iter, last_iter, cost_data, weights):
     print("Saving training data")
 
-    with h5py.File(folders.training_data_file, "w") as f:
-        td = f.create_group("trainig_data")
+    if not os.path.exists(folders.training_data_file):
+        with h5py.File(folders.training_data_file, "w") as f:
+            td = f.create_group("trainig_data")
+            td.attrs["model_type"] = folders.name
+            td.attrs["checkpoints"] = 1
 
-        td.attrs["model_type"] = folders.name
-        td.attrs["stopping_criteria"] = stopping_criteria
-        td.attrs["iterations"] = last_iter
+            cpt = td.create_group("checkpoint_000")
 
-        td.create_dataset("cost", data=cost_data)
-        td.create_dataset("weights", dtype=float, data=weights)
+            cpt.attrs["stopping_criteria"] = stopping_criteria
+            cpt.attrs["first_iteration"] = first_iter
+            cpt.attrs["last_iteration"] = last_iter
+
+            cpt.create_dataset("cost", compression="gzip",
+                               chunks=True, data=cost_data)
+            cpt.create_dataset("weights", compression="gzip",
+                               chunks=True, dtype=float, data=weights)
+    else:
+        with h5py.File(folders.training_data_file, "a") as f:
+            td = f["trainig_data"]
+
+            cpt = td.create_group(
+                "checkpoint_{:03d}".format(td.attrs["checkpoints"]))
+
+            td.attrs["checkpoints"] += 1
+
+            cpt.attrs["stopping_criteria"] = stopping_criteria
+            cpt.attrs["first_iteration"] = first_iter
+            cpt.attrs["last_iteration"] = last_iter
+
+            cpt.create_dataset("cost", compression="gzip",
+                               chunks=True, data=cost_data)
+            cpt.create_dataset("weights", compression="gzip",
+                               chunks=True, dtype=float, data=weights)
+
+
+def recover_training_data(folders: ModelFolders):
+    with h5py.File(folders.training_data_file, "r") as f:
+        last_checkpoint_group = "checkpoint_{:03d}".format(
+            f["trainig_data"].attrs["checkpoints"] - 1)
+
+        i = int(f["trainig_data"]
+                [last_checkpoint_group].attrs["last_iteration"]) + 1
+        w = np.array(
+            f.get("trainig_data/{}/weights".format(last_checkpoint_group)))
+        return i, w
 
 
 def square_loss(targets, predictions):
@@ -187,11 +223,18 @@ def cost_to_target(node, weights, data, targets):
 
 
 def fit_to_target(folders: ModelFolders, circuit, device, weights, data, targets, params: OptimizerParams):
-    print("Fitting to target")
-
     # Adjoint differantiation makes the cost function computation
     # substantially faster with lightning backends
     node = qml.QNode(circuit, device, diff_method="adjoint")
+
+    # Recovery
+    if os.path.exists(folders.training_data_file):
+        print("Recovering previous training data")
+        first_iter, weights = recover_training_data(folders)
+    else:
+        first_iter = 0
+
+    last_iter = first_iter + params.max_iters
 
     # Initial data
     cost_data = []
@@ -199,7 +242,7 @@ def fit_to_target(folders: ModelFolders, circuit, device, weights, data, targets
     opt = qml.AdagradOptimizer(params.step)
     stopping_criteria = "max iterations reached"
 
-    for i in range(params.max_iters):
+    for i in range(first_iter, last_iter):
         # save, and print the current cost
         c = cost_to_target(node, weights, data, targets)
         cost_data.append(c)
@@ -222,7 +265,8 @@ def fit_to_target(folders: ModelFolders, circuit, device, weights, data, targets
     print("  Final cost value:", cost_data[-1])
 
     # Save Data
-    save_training_data(folders, stopping_criteria, i, cost_data, weights)
+    save_training_data(folders, stopping_criteria,
+                       first_iter, i, cost_data, weights)
 
 
 def circuit_derivative(circuit, device, weights, x):
@@ -283,17 +327,17 @@ def main():
     fit_to_target(folders, entangling_circuit, device, weights, x, y, params)
 
     # Plots
-    with h5py.File(folders.training_data_file, "r") as f:
-        i = int(f["trainig_data"].attrs["iterations"])
-        c = np.array(f.get("trainig_data/cost"))
-        w = np.array(f.get("trainig_data/weights"))
+    # with h5py.File(folders.training_data_file, "r") as f:
+    #     i = int(f["trainig_data"].attrs["iterations"])
+    #     c = np.array(f.get("trainig_data/cost"))
+    #     w = np.array(f.get("trainig_data/weights"))
 
-        plot_cost(folders, i, c)
-        plot_fit_error(folders, entangling_circuit, device, w, x, y)
-        plot_circuit_function(folders, entangling_circuit, device, w, x)
-        plot_derivative_error(folders, entangling_circuit, device, w, x, yp)
-        plot_second_derivative_error(
-            folders, entangling_circuit, device, w, x, ypp)
+    #     plot_cost(folders, i, c)
+    #     plot_fit_error(folders, entangling_circuit, device, w, x, y)
+    #     plot_circuit_function(folders, entangling_circuit, device, w, x)
+    #     plot_derivative_error(folders, entangling_circuit, device, w, x, yp)
+    #     plot_second_derivative_error(
+    #         folders, entangling_circuit, device, w, x, ypp)
 
 
 if __name__ == "__main__":
