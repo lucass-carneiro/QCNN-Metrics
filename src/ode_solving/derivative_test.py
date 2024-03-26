@@ -15,8 +15,8 @@ dataset_size = 100
 
 folder_name = "derivative_test"
 
-max_iters = 500
-abstol = 1.0e-2
+max_iters = 1000
+abstol = 1.0e-3
 step_size = 1.0e-2
 
 font_size = 18
@@ -310,13 +310,14 @@ def main():
     # Quantum device
     device = qml.device("lightning.kokkos", wires=num_qubits, shots=None)
 
-    # Data
-    # x = np.linspace(-np.pi, np.pi, num=dataset_size, endpoint=True)
-    x = np.array([-np.pi * np.cos(k * np.pi / (dataset_size - 1))
-                  for k in range(dataset_size)])
-    y = (np.pi - x) * (3 * np.pi + x) / (4 * np.pi * np.pi)
-    yp = - (np.pi - x) / (2 * np.pi * np.pi)
-    ypp = np.full(len(y), - 1 / (2 * np.pi * np.pi))
+    # Sampling points
+    x = np.linspace(-1, 1, num=dataset_size, endpoint=True)
+
+    # Solution to the Hagen Poiseuille equation in the [-1, 1] range
+    prefactor = 1.0  # G * R^2 / mu
+    y = prefactor * (1 - x) * (3 + x) / 16.0
+    yp = - prefactor * (1 + x) / 8.0
+    ypp = np.full(len(y), -prefactor / 8.0)
 
     # Initial weights
     param_shape = (2, trainable_block_layers, num_qubits, 3)
@@ -327,17 +328,31 @@ def main():
     fit_to_target(folders, entangling_circuit, device, weights, x, y, params)
 
     # Plots
-    # with h5py.File(folders.training_data_file, "r") as f:
-    #     i = int(f["trainig_data"].attrs["iterations"])
-    #     c = np.array(f.get("trainig_data/cost"))
-    #     w = np.array(f.get("trainig_data/weights"))
+    with h5py.File(folders.training_data_file, "r") as f:
+        td = f["trainig_data"]
+        checkpoints = td.attrs["checkpoints"]
 
-    #     plot_cost(folders, i, c)
-    #     plot_fit_error(folders, entangling_circuit, device, w, x, y)
-    #     plot_circuit_function(folders, entangling_circuit, device, w, x)
-    #     plot_derivative_error(folders, entangling_circuit, device, w, x, yp)
-    #     plot_second_derivative_error(
-    #         folders, entangling_circuit, device, w, x, ypp)
+        cost_data = []
+        iter = None
+        w = None
+
+        for i in range(checkpoints):
+            cpt_group = "checkpoint_{:03d}".format(i)
+
+            c = list(f.get("trainig_data/{}/cost".format(cpt_group)))
+            cost_data.extend(c)
+
+            w = np.array(
+                f.get("trainig_data/{}/weights".format(cpt_group)))
+
+            iter = f["trainig_data"][cpt_group].attrs["last_iteration"]
+
+        plot_cost(folders, iter, cost_data)
+        plot_fit_error(folders, entangling_circuit, device, w, x, y)
+        plot_circuit_function(folders, entangling_circuit, device, w, x)
+        plot_derivative_error(folders, entangling_circuit, device, w, x, yp)
+        plot_second_derivative_error(
+            folders, entangling_circuit, device, w, x, ypp)
 
 
 if __name__ == "__main__":

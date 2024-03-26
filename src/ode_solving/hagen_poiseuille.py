@@ -9,14 +9,19 @@ import h5py
 
 import os
 
-num_qubits = 3
+num_qubits = 10
 trainable_block_layers = 3
 dataset_size = 100
 
-folder_name = "harmonic_oscillator"
+folder_name = "hagen_poiseuille"
 
-max_iters = 100
-abstol = 1.0e-2
+# HP equation parameters
+G = 1.0
+R = 1.0
+mu = 1.0
+
+max_iters = 1000
+abstol = 1.0e-3
 step_size = 1.0e-2
 
 font_size = 18
@@ -103,42 +108,103 @@ def plot_circuit_function(folders: ModelFolders, circuit, device, weights, data)
     plt.savefig(os.path.join(folders.img_folder, "trained.pdf"))
 
 
-def save_training_data(folders: ModelFolders, stopping_criteria, last_iter, cost_data, weights):
+def save_training_data(folders: ModelFolders, stopping_criteria, first_iter, last_iter, cost_data, weights):
     print("Saving training data")
 
-    with h5py.File(folders.training_data_file, "w") as f:
-        td = f.create_group("trainig_data")
+    if not os.path.exists(folders.training_data_file):
+        with h5py.File(folders.training_data_file, "w") as f:
+            td = f.create_group("trainig_data")
+            td.attrs["model_type"] = folders.name
+            td.attrs["checkpoints"] = 1
 
-        td.attrs["model_type"] = folders.name
-        td.attrs["stopping_criteria"] = stopping_criteria
-        td.attrs["iterations"] = last_iter
+            cpt = td.create_group("checkpoint_000")
 
-        td.create_dataset("cost", data=cost_data)
-        td.create_dataset("weights", dtype=float, data=weights)
+            cpt.attrs["stopping_criteria"] = stopping_criteria
+            cpt.attrs["first_iteration"] = first_iter
+            cpt.attrs["last_iteration"] = last_iter
 
-# f'(x) = -sen(x)
-# f(-pi) = cos(-pi) = -1
-# f(x) = cos(x)
+            cpt.create_dataset("cost", compression="gzip",
+                               chunks=True, data=cost_data)
+            cpt.create_dataset("weights", compression="gzip",
+                               chunks=True, dtype=float, data=weights)
+    else:
+        with h5py.File(folders.training_data_file, "a") as f:
+            td = f["trainig_data"]
+
+            cpt = td.create_group(
+                "checkpoint_{:03d}".format(td.attrs["checkpoints"]))
+
+            td.attrs["checkpoints"] += 1
+
+            cpt.attrs["stopping_criteria"] = stopping_criteria
+            cpt.attrs["first_iteration"] = first_iter
+            cpt.attrs["last_iteration"] = last_iter
+
+            cpt.create_dataset("cost", compression="gzip",
+                               chunks=True, data=cost_data)
+            cpt.create_dataset("weights", compression="gzip",
+                               chunks=True, dtype=float, data=weights)
+
+
+def recover_training_data(folders: ModelFolders):
+    with h5py.File(folders.training_data_file, "r") as f:
+        last_checkpoint_group = "checkpoint_{:03d}".format(
+            f["trainig_data"].attrs["checkpoints"] - 1)
+
+        i = int(f["trainig_data"]
+                [last_checkpoint_group].attrs["last_iteration"]) + 1
+        w = np.array(
+            f.get("trainig_data/{}/weights".format(last_checkpoint_group)))
+        return i, w
+
+
+def df(node, weights, x):
+    fp_2 = node(weights, x=(x + np.pi / 2.0))
+    fm_2 = node(weights, x=(x - np.pi / 2.0))
+    return (fp_2 + fm_2) / 2.0
+
+
+def d2f(node, weights, x):
+    f = node(weights, x=x)
+    fp = node(weights, x=(x + np.pi))
+    fm = node(weights, x=(x - np.pi))
+    return (fm + fp - 2.0 * f) / 4
 
 
 def cost_int_pointwise(node, weights, x):
-    f_prime = (node(weights, x=(x + np.pi / 2)) +
-               node(weights, x=(x - np.pi / 2)))/2
+    Df = df(node, weights, x)
+    D2f = d2f(node, weights, x)
 
-    return f_prime + np.sin(x)
+    return (1.0 + x) * D2f + Df + (1.0 + x) * G * R**2 / (4.0 * mu)
 
 
 def cost(node, weights, data, N):
-    f_bnd = np.abs(-1 - node(weights, x=-np.pi))
-    return (np.sqrt(sum(np.abs(cost_int_pointwise(node, weights, x))**2 for x in data[1:])) + f_bnd) / N
+    # f(1) = 0
+    f_right = np.abs(node(weights, x=1.0))
+
+    # f'(-1) = 0
+    fp_left = np.abs(df(node, weights, -1.0))
+
+    # Interior
+    int_cost = sum(
+        np.abs(cost_int_pointwise(node, weights, x)) ** 2 for x in data[1:-1]
+    )
+    return (np.sqrt(int_cost) + f_right + fp_left) / N
 
 
 def optimize(folders: ModelFolders, circuit, device, weights, data, params: OptimizerParams):
-    print("Minimizing loss")
-
     # Adjoint differantiation makes the cost function computation
     # substantially faster with lightning backends
     node = qml.QNode(circuit, device, diff_method="adjoint")
+
+    # Recovery
+    if os.path.exists(folders.training_data_file):
+        print("Recovering previous training data")
+        first_iter, weights = recover_training_data(folders)
+    else:
+        first_iter = 0
+
+    last_iter = first_iter + params.max_iters
 
     # Initial data
     cost_data = []
@@ -148,7 +214,8 @@ def optimize(folders: ModelFolders, circuit, device, weights, data, params: Opti
 
     N = len(data)
 
-    for i in range(params.max_iters):
+    for i in range(first_iter, last_iter):
+        # save, and print the current cost
         c = cost(node, weights, data, N)
         cost_data.append(c)
 
@@ -170,7 +237,8 @@ def optimize(folders: ModelFolders, circuit, device, weights, data, params: Opti
     print("  Final cost value:", cost_data[-1])
 
     # Save Data
-    save_training_data(folders, stopping_criteria, i, cost_data, weights)
+    save_training_data(folders, stopping_criteria,
+                       first_iter, i, cost_data, weights)
 
 
 def S(x):
@@ -199,11 +267,10 @@ def main():
     # Quantum device
     device = qml.device("lightning.kokkos", wires=num_qubits, shots=None)
 
-    # Data
-    x = np.linspace(-np.pi, np.pi, num=dataset_size, endpoint=True)
+    # Sampling points
+    x = np.linspace(-1, 1, num=dataset_size, endpoint=True)
 
     # Initial weights
-    trainable_block_layers = 3
     param_shape = (2, trainable_block_layers, num_qubits, 3)
     weights = 2 * np.pi * np.random.random(size=param_shape)
 
@@ -213,11 +280,25 @@ def main():
 
     # Plots
     with h5py.File(folders.training_data_file, "r") as f:
-        i = int(f["trainig_data"].attrs["iterations"])
-        c = np.array(f.get("trainig_data/cost"))
-        w = np.array(f.get("trainig_data/weights"))
+        td = f["trainig_data"]
+        checkpoints = td.attrs["checkpoints"]
 
-        plot_cost(folders, i, c)
+        cost_data = []
+        iter = None
+        w = None
+
+        for i in range(checkpoints):
+            cpt_group = "checkpoint_{:03d}".format(i)
+
+            c = list(f.get("trainig_data/{}/cost".format(cpt_group)))
+            cost_data.extend(c)
+
+            w = np.array(
+                f.get("trainig_data/{}/weights".format(cpt_group)))
+
+            iter = f["trainig_data"][cpt_group].attrs["last_iteration"]
+
+        plot_cost(folders, iter, cost_data)
         plot_circuit_function(folders, entangling_circuit, device, w, x)
 
 
