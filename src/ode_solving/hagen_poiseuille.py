@@ -20,8 +20,11 @@ G = 1.0
 R = 1.0
 mu = 1.0
 
+original_a = 0.0
+original_b = R
+
 max_iters = 1000
-abstol = 1.0e-3
+abstol = 1.0e-5
 step_size = 1.0e-2
 
 font_size = 18
@@ -170,26 +173,48 @@ def d2f(node, weights, x):
     fm = node(weights, x=(x - np.pi))
     return (fm + fp - 2.0 * f) / 4
 
+# Coordinate transformations
+
+
+def original2local(original_x):
+    return (original_a + original_b - 2.0 * original_x) / (original_a - original_b)
+
+
+def local2original(local_X):
+    return (original_a + original_b + (original_b - original_b) * local_X) / 2.0
+
+
+original2local_jac = 2.0 / (original_b - original_a)
+original2local_djac = original2local_jac * original2local_jac
+
 
 def cost_int_pointwise(node, weights, x):
     Df = df(node, weights, x)
     D2f = d2f(node, weights, x)
 
-    return (1.0 + x) * D2f + Df + (1.0 + x) * G * R**2 / (4.0 * mu)
+    X = original2local(x)
+
+    return original2local_djac * D2f + 1.0 / X * original2local_jac * Df + G / mu
 
 
 def cost(node, weights, data, N):
-    # f(1) = 0
-    f_right = np.abs(node(weights, x=1.0))
+    # f(original_a) = G * R^2 / (4 * mu)
+    f_left = np.abs(node(weights, x=-1.0) - G * R * R / (4.0 * mu))**2
 
-    # f'(-1) = 0
-    fp_left = np.abs(df(node, weights, -1.0))
+    # f(original_b) = 0
+    f_right = np.abs(node(weights, x=1.0))**2
 
-    # Interior
-    int_cost = sum(
-        np.abs(cost_int_pointwise(node, weights, x)) ** 2 for x in data[1:-1]
+    # BCs cost
+    bc_cost = np.sqrt((f_left + f_right) / 2.0)
+
+    # Interior cost
+    int_cost = np.sqrt(
+        sum(
+            np.abs(cost_int_pointwise(node, weights, x))**2 for x in data[1:-1]
+        ) / (N - 2)
     )
-    return (np.sqrt(int_cost) + f_right + fp_left) / N
+
+    return bc_cost + int_cost
 
 
 def optimize(folders: ModelFolders, circuit, device, weights, data, params: OptimizerParams):
