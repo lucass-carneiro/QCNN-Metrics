@@ -1,5 +1,5 @@
 import pennylane as qml
-from pennylane.templates import StronglyEntanglingLayers
+from conv_layers import FreeVatanWilliams as conv_layer
 from pennylane import numpy as np
 
 import matplotlib as mpl
@@ -9,8 +9,7 @@ import h5py
 
 import os
 
-num_qubits = 3
-trainable_block_layers = 2
+num_qubits = 4
 dataset_size = 100
 
 folder_name = "hagen_poiseuille"
@@ -23,7 +22,7 @@ mu = 1.0
 global_a = 0.0
 global_b = 1.0
 
-max_iters = 50
+max_iters = 250
 abstol = 1.0e-5
 step_size = 1.0e-2
 
@@ -193,13 +192,13 @@ def cost_int_pointwise(node, weights, x):
 
     r = local2global(x)
 
-    # return D2f + 1.0 / dlocal_dglobal_sq
-    return D2f + dlocal_dglobal * Df / (r * dlocal_dglobal_sq) + G / (mu * dlocal_dglobal_sq)
+    return D2f + 1.0 / dlocal_dglobal_sq
+    # return D2f + dlocal_dglobal * Df / (r * dlocal_dglobal_sq) + G / (mu * dlocal_dglobal_sq)
 
 
 def cost(node, weights, data, N):
+    f_left = np.abs(df(node, weights, x=-1.0) - 0.25)**2
     # f_left = np.abs(node(weights, x=-1.0))**2
-    f_left = np.abs(node(weights, x=-1.0))**2
 
     f_right = np.abs(node(weights, x=1.0))**2
 
@@ -265,13 +264,21 @@ def optimize(folders: ModelFolders, circuit, device, weights, data, params: Opti
                        first_iter, i, cost_data, weights)
 
 
+def conv_block(p):
+    qml.Barrier(wires=range(num_qubits))
+    conv_layer.layer(p[0], [0, 1])
+    conv_layer.layer(p[1], [1, 2])
+    conv_layer.layer(p[2], [2, 0])
+    qml.Barrier(wires=range(num_qubits))
+
+
 def S(x):
     for w in range(num_qubits):
         qml.RX(x, wires=w)
 
 
 def W(theta):
-    StronglyEntanglingLayers(theta, wires=range(num_qubits))
+    conv_block(theta)
 
 
 def entangling_circuit(weights, x=None):
@@ -295,7 +302,7 @@ def main():
     x = np.linspace(-1.0, 1.0, num=dataset_size, endpoint=True)
 
     # Initial weights
-    param_shape = (2, trainable_block_layers, num_qubits, 3)
+    param_shape = (2, num_qubits, conv_layer.ppb)
     weights = 2 * np.pi * np.random.random(size=param_shape)
 
     # Solve
