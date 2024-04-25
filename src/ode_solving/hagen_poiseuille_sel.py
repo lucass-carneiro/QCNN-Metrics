@@ -1,5 +1,5 @@
 import pennylane as qml
-from conv_layers import FreeVatanWilliams as conv_layer
+from pennylane.templates import StronglyEntanglingLayers
 from pennylane import numpy as np
 from pennylane.numpy.random import Generator, MT19937
 
@@ -11,9 +11,10 @@ import h5py
 import os
 
 num_qubits = 3
+trainable_block_layers = 2
 dataset_size = 20
 
-folder_name = "hagen_poiseuille"
+folder_name = "hagen_poiseuille_sel"
 
 # HP equation parameters
 G = 1.0
@@ -275,21 +276,13 @@ def optimize(folders: ModelFolders, circuit, device, weights, data, params: Opti
                        first_iter, i, cost_data, weights)
 
 
-def conv_block(p):
-    qml.Barrier(wires=range(num_qubits))
-    conv_layer.layer(p[0], [0, 1])
-    conv_layer.layer(p[1], [1, 2])
-    conv_layer.layer(p[2], [2, 0])
-    qml.Barrier(wires=range(num_qubits))
-
-
 def S(x):
     for w in range(num_qubits):
         qml.RX(x, wires=w)
 
 
 def W(theta):
-    conv_block(theta)
+    StronglyEntanglingLayers(theta, wires=range(num_qubits))
 
 
 def entangling_circuit(weights, x=None):
@@ -313,7 +306,7 @@ def main():
     x = np.linspace(global_a, global_b, num=dataset_size, endpoint=True)
 
     # Initial weights
-    param_shape = (2, num_qubits, conv_layer.ppb)
+    param_shape = (2, trainable_block_layers, num_qubits, 3)
     weights = 2 * np.pi * Generator(MT19937(seed=100)).random(size=param_shape)
 
     # Solve
