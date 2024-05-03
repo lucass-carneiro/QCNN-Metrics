@@ -1,6 +1,8 @@
 import pennylane as qml
 from pennylane.templates import StronglyEntanglingLayers
 from pennylane import numpy as np
+from pennylane.numpy.random import Generator, MT19937
+
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -9,15 +11,15 @@ import h5py
 
 import os
 
-num_qubits = 10
+num_qubits = 5
 trainable_block_layers = 3
-dataset_size = 100
+dataset_size = 20
 
-folder_name = "derivative_test"
+folder_name = "derivative_test_sel"
 
-max_iters = 1000
+max_iters = 10000
 abstol = 1.0e-3
-step_size = 1.0e-2
+step_size = 1.0e-3
 
 font_size = 18
 line_thickness = 2.0
@@ -239,7 +241,7 @@ def fit_to_target(folders: ModelFolders, circuit, device, weights, data, targets
     # Initial data
     cost_data = []
 
-    opt = qml.AdagradOptimizer(params.step)
+    opt = qml.AdamOptimizer(params.step)
     stopping_criteria = "max iterations reached"
 
     for i in range(first_iter, last_iter):
@@ -321,7 +323,7 @@ def main():
 
     # Initial weights
     param_shape = (2, trainable_block_layers, num_qubits, 3)
-    weights = 2 * np.pi * np.random.random(size=param_shape)
+    weights = 2 * np.pi * Generator(MT19937(seed=100)).random(size=param_shape)
 
     # Fit
     draw_circuit(folders, entangling_circuit, device, weights, 0.0)

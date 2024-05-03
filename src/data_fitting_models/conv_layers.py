@@ -94,7 +94,7 @@ class HurKimPark4:
     """See https://arxiv.org/abs/2108.00661"""
 
     name: str = "Hur - Kim - Park (4)"
-    ppb: int = 4
+    ppb: int = 6
 
     def layer(p, w):
         qml.RY(p[0], wires=w[0])

@@ -10,8 +10,8 @@ import h5py
 
 import os
 
-num_qubits = 3
-trainable_block_layers = 2
+num_qubits = 5
+trainable_block_layers = 3
 dataset_size = 20
 
 folder_name = "hagen_poiseuille_sel"
@@ -21,9 +21,9 @@ G = 1.0
 R = 1.0
 mu = 1.0
 
-max_iters = 1000
-abstol = 1.0e-5
-step_size = 1.0e-3
+max_iters = 2000
+abstol = 1.0e-6
+step_size = 1.0e-4
 
 font_size = 18
 line_thickness = 2.0
@@ -40,7 +40,7 @@ os.environ["OMP_PLACES"] = "threads"
 os.environ["OMP_NUM_THREADS"] = str(num_qubits)
 
 # Coordinate transformations
-global_a = -1.0
+global_a = 0
 global_b = 1.0
 
 
@@ -118,7 +118,7 @@ def plot_circuit_function(folders: ModelFolders, circuit, device, weights, data)
 
     node = qml.QNode(circuit, device)
 
-    f = [node(weights, x=x_) for x_ in data]
+    f = [node(weights, x=global2local(x_)) for x_ in data]
 
     plt.close("all")
 
@@ -191,40 +191,41 @@ def d2f(node, weights, x):
     f = node(weights, x=x)
     fp = node(weights, x=(x + np.pi))
     fm = node(weights, x=(x - np.pi))
-    return (fm + fp - 2.0 * f) / 4
+    return (fm + fp - 2.0 * f) / 4.0
 
 
 def cost_int_pointwise(node, weights, x):
     # Get local X
     X = global2local(x)
 
-    # Compute the function in local space
-    f = node(weights, x=X)
-
     # Compute derivatives in local space
     l_dfdX = df(node, weights, x=X)
-    # l_d2fdX2 = d2f(node, weights, x=X)
+    l_d2fdX2 = d2f(node, weights, x=X)
 
     # Compute jacobians
     dldg = dlocal_dglobal(x)
-    # d2ldg2 = d2local_dglobal2(x)
+    d2ldg2 = d2local_dglobal2(x)
 
     # Compute derivatives in global space
     g_dfdx = dldg * l_dfdX
-    # g_d2fdx2 = dldg * dldg * l_d2fdX2 + d2ldg2 * l_dfdX
+    g_d2fdx2 = dldg * dldg * l_d2fdX2 + d2ldg2 * l_dfdX
 
     # ODE in global space
-    return g_dfdx + 2 * x * f
+    return (g_d2fdx2 + G/mu) #* x + g_dfdx
 
 
 def cost(node, weights, data, N):
     # BCs
-    bc_cost = (node(weights, x=global2local(global_a)) - 1)**2
+    #bc_l = (node(weights, x=global2local(global_a)) - G * R**2 / (4.0 * mu))**2
+    bc_l = (node(weights, x=global2local(global_a)))**2
+    bc_r = (node(weights, x=global2local(global_b)))**2
+    #bc_d = (df(node, weights, x=global2local(global_a)))**2
 
     # Interior cost
-    int_cost = sum(cost_int_pointwise(node, weights, x)**2 for x in data[1:])
+    int_cost = sum(cost_int_pointwise(node, weights, x) ** 2 for x in data[-1:1])
 
-    return bc_cost + int_cost
+    #return np.sqrt((bc_l + bc_r + bc_d + int_cost) / N)
+    return np.sqrt((bc_l + bc_r + int_cost) / N)
 
 
 def optimize(folders: ModelFolders, circuit, device, weights, data, params: OptimizerParams):
