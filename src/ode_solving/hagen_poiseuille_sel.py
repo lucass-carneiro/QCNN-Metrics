@@ -11,8 +11,9 @@ import h5py
 import os
 
 num_qubits = 5
-trainable_block_layers = 3
+trainable_block_layers = 2
 dataset_size = 20
+batch_size = 10
 
 folder_name = "hagen_poiseuille_sel"
 
@@ -21,7 +22,7 @@ G = 1.0
 R = 1.0
 mu = 1.0
 
-max_iters = 2000
+max_iters = 10000
 abstol = 1.0e-6
 step_size = 1.0e-4
 
@@ -211,21 +212,19 @@ def cost_int_pointwise(node, weights, x):
     g_d2fdx2 = dldg * dldg * l_d2fdX2 + d2ldg2 * l_dfdX
 
     # ODE in global space
-    return (g_d2fdx2 + G/mu) #* x + g_dfdx
+    return (g_d2fdx2 + G/mu) * x + g_dfdx
 
 
 def cost(node, weights, data, N):
     # BCs
-    #bc_l = (node(weights, x=global2local(global_a)) - G * R**2 / (4.0 * mu))**2
-    bc_l = (node(weights, x=global2local(global_a)))**2
+    bc_l = (node(weights, x=global2local(global_a)) - G * R**2 / (4.0 * mu))**2
     bc_r = (node(weights, x=global2local(global_b)))**2
-    #bc_d = (df(node, weights, x=global2local(global_a)))**2
+    bc_d = (df(node, weights, x=global2local(global_a)))**2
 
     # Interior cost
-    int_cost = sum(cost_int_pointwise(node, weights, x) ** 2 for x in data[-1:1])
+    int_cost = sum(cost_int_pointwise(node, weights, x) ** 2 for x in data)
 
-    #return np.sqrt((bc_l + bc_r + bc_d + int_cost) / N)
-    return np.sqrt((bc_l + bc_r + int_cost) / N)
+    return np.sqrt((bc_l + bc_r + bc_d + int_cost) / N)
 
 
 def optimize(folders: ModelFolders, circuit, device, weights, data, params: OptimizerParams):
@@ -248,11 +247,19 @@ def optimize(folders: ModelFolders, circuit, device, weights, data, params: Opti
     opt = qml.AdamOptimizer(params.step)
     stopping_criteria = "max iterations reached"
 
-    N = len(data)
+    N_data = len(data)
 
     for i in range(first_iter, last_iter):
+        batch_indices = Generator(MT19937(seed=100)).integers(
+            1,
+            N_data - 2,
+            size=batch_size,
+            endpoint=True
+        )
+        batch_data = data[batch_indices]
+
         # save, and print the current cost
-        c = cost(node, weights, data, N)
+        c = cost(node, weights, batch_data, batch_size)
         cost_data.append(c)
 
         print("Loss in teration", i, "=", c)
@@ -262,7 +269,7 @@ def optimize(folders: ModelFolders, circuit, device, weights, data, params: Opti
             break
         else:
             weights = opt.step(
-                lambda w: cost(node, w, data, N),
+                lambda w: cost(node, w, batch_data, batch_size),
                 weights
             )
 
