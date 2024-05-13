@@ -1,5 +1,5 @@
 import pennylane as qml
-from pennylane.templates import StronglyEntanglingLayers
+from conv_layers import HurKimPark9 as conv_layer
 from pennylane import numpy as np
 from pennylane.numpy.random import Generator, MT19937
 
@@ -11,18 +11,17 @@ import h5py
 import os
 
 num_qubits = 5
-trainable_block_layers = 2
-dataset_size = 20
-batch_size = 10
+dataset_size = 100
+batch_size = 50
 
-folder_name = "hagen_poiseuille_sel"
+folder_name = "hagen_poiseuille_conv_batch"
 
 # HP equation parameters
 G = 1.0
 R = 1.0
 mu = 1.0
 
-max_iters = 10000
+max_iters = 2000
 abstol = 1.0e-6
 step_size = 1.0e-4
 
@@ -41,7 +40,7 @@ os.environ["OMP_PLACES"] = "threads"
 os.environ["OMP_NUM_THREADS"] = str(num_qubits)
 
 # Coordinate transformations
-global_a = 0
+global_a = 0.0
 global_b = 1.0
 
 
@@ -192,7 +191,7 @@ def d2f(node, weights, x):
     f = node(weights, x=x)
     fp = node(weights, x=(x + np.pi))
     fm = node(weights, x=(x - np.pi))
-    return (fm + fp - 2.0 * f) / 4.0
+    return (fm + fp - 2.0 * f) / 4
 
 
 def cost_int_pointwise(node, weights, x):
@@ -222,7 +221,7 @@ def cost(node, weights, data, N):
     bc_d = (df(node, weights, x=global2local(global_a)))**2
 
     # Interior cost
-    int_cost = sum(cost_int_pointwise(node, weights, x) ** 2 for x in data)
+    int_cost = sum(cost_int_pointwise(node, weights, x) ** 2 for x in data[-1:1])
 
     return np.sqrt((bc_l + bc_r + bc_d + int_cost) / N)
 
@@ -285,13 +284,23 @@ def optimize(folders: ModelFolders, circuit, device, weights, data, params: Opti
                        first_iter, i, cost_data, weights)
 
 
+def conv_block(p):
+    qml.Barrier(wires=range(num_qubits))
+    conv_layer.layer(p[0], [0, 1])
+    conv_layer.layer(p[1], [1, 2])
+    conv_layer.layer(p[2], [2, 3])
+    conv_layer.layer(p[3], [3, 4])
+    conv_layer.layer(p[4], [4, 0])
+    qml.Barrier(wires=range(num_qubits))
+
+
 def S(x):
     for w in range(num_qubits):
         qml.RX(x, wires=w)
 
 
 def W(theta):
-    StronglyEntanglingLayers(theta, wires=range(num_qubits))
+    conv_block(theta)
 
 
 def entangling_circuit(weights, x=None):
@@ -315,7 +324,7 @@ def main():
     x = np.linspace(global_a, global_b, num=dataset_size, endpoint=True)
 
     # Initial weights
-    param_shape = (2, trainable_block_layers, num_qubits, 3)
+    param_shape = (2, num_qubits, conv_layer.ppb)
     weights = 2 * np.pi * Generator(MT19937(seed=100)).random(size=param_shape)
 
     # Solve
