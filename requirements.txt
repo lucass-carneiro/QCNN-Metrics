@@ -5,6 +5,7 @@ h5py
 matplotlib
 qiskit
 pylatexenc
+torch
 
 pennylane
 pennylane-qiskit
