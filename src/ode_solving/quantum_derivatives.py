@@ -1,4 +1,4 @@
-import numpy as np
+from pennylane import numpy as np
 
 def df(node, weights, x):
     fp_2 = node(weights, x=(x + np.pi / 2.0))

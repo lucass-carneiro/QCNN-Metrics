@@ -2,14 +2,22 @@ import model_folders as mf
 import optimizer_params as op
 import hdf5_io as io
 
-import numpy as np
 import pennylane as qml
+import pennylane.numpy as np
 
 import torch
 
 import os
 
-def torch_optimize(folders: mf.ModelFolders, circuit, device, weights, data, params: op.OptimizerParams, problem, random_generator):
+def torch_optimize(folders: mf.ModelFolders, circuit, num_qubits, weights, data, params: op.OptimizerParams, problem, random_generator):
+    # Quantum device
+    device = qml.device(
+        "default.qubit.torch",
+        torch_device="cuda",
+        wires=num_qubits,
+        shots=None
+    )
+
     node = qml.QNode(
         circuit,
         device, 
@@ -36,8 +44,11 @@ def torch_optimize(folders: mf.ModelFolders, circuit, device, weights, data, par
     # Pytorch definitions
     weights_torch = torch.tensor(weights, requires_grad=True, device="cuda")
     
-    opt = torch.optim.LBFGS([weights_torch], lr=params.step)
-
+    opt = torch.optim.LBFGS(
+        [weights_torch],
+        lr=params.step
+    )
+    
     # Optimization loop
     for i in range(first_iter, last_iter):
         batch_indices = random_generator.integers(
@@ -49,8 +60,14 @@ def torch_optimize(folders: mf.ModelFolders, circuit, device, weights, data, par
 
         batch_data = torch.tensor(data[batch_indices], requires_grad=False, device="cuda")
         
+        def torch_cost():
+                opt.zero_grad()
+                c = torch.sqrt(problem.cost(node, weights_torch, batch_data, params.batch_size))
+                c.backward()
+                return c
+        
         # save, and print the current cost
-        c = problem.cost(node, weights_torch, batch_data, params.batch_size).item()
+        c = torch_cost().item()
         cost_data.append(c)
 
         print("Loss in teration", i, "=", c)
@@ -59,12 +76,6 @@ def torch_optimize(folders: mf.ModelFolders, circuit, device, weights, data, par
             stopping_criteria = "absolute tolerance reached"
             break
         else:
-            def torch_cost():
-                opt.zero_grad()
-                c = problem.cost(node, weights_torch, batch_data, params.batch_size)
-                c.backward()
-                return c
-            
             opt.step(torch_cost)
 
     # Results

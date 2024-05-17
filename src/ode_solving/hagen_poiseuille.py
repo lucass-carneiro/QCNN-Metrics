@@ -1,8 +1,6 @@
 import quantum_derivatives as qd
 import domain_map as dm
 
-import torch
-
 class HagenPoiseuille:
     def __init__(self, x0: float, xf: float, G: float, R: float, mu: float):
         self.map = dm.LinearMap(x0, xf)
@@ -38,4 +36,4 @@ class HagenPoiseuille:
         # Interior cost
         int_cost = sum(self.cost_int_pointwise(node, weights, x) ** 2 for x in data)
 
-        return torch.sqrt((bc_l + bc_r + bc_d + int_cost) / N)
+        return (bc_l + bc_r + bc_d + int_cost) / N

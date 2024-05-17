@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 import pennylane as qml
 
-import numpy as np
+from pennylane import numpy as np
 
 import h5py
 
@@ -21,11 +21,12 @@ mpl.rcParams["font.family"] = "Latin Modern Roman"
 mpl.rcParams['xtick.labelsize'] = font_size
 mpl.rcParams['ytick.labelsize'] = font_size
 
-def draw_circuit(folders: mf.ModelFolders, circuit, device, *args):
+def draw_circuit(folders: mf.ModelFolders, circuit, num_qubits, *args):
     print("Drawing circuit.")
 
     plt.close("all")
 
+    device = qml.device("default.qubit", wires=num_qubits, shots=None)
     node = qml.QNode(circuit, device)
 
     fig, _ = qml.draw_mpl(node)(*args)
@@ -47,9 +48,10 @@ def plot_cost(folders: mf.ModelFolders, last_iter, cost_data):
     plt.savefig(os.path.join(folders.img_folder, "cost.pdf"))
 
 
-def plot_circuit_function(folders: mf.ModelFolders, map: dm.DomainMap, circuit, device, weights, data):
+def plot_circuit_function(folders: mf.ModelFolders, map: dm.DomainMap, circuit, weights, data, num_qubits):
     print("Plotting circuit function")
 
+    device = qml.device("default.qubit", wires=num_qubits, shots=None)
     node = qml.QNode(circuit, device)
 
     f = [node(weights, x=map.global2local(x_)) for x_ in data]
@@ -64,7 +66,7 @@ def plot_circuit_function(folders: mf.ModelFolders, map: dm.DomainMap, circuit, 
     plt.tight_layout()
     plt.savefig(os.path.join(folders.img_folder, "trained.pdf"))
 
-def recover_and_plot(folders: mf.ModelFolders, map: dm.DomainMap, ansatz, device, x):
+def recover_and_plot(folders: mf.ModelFolders, map: dm.DomainMap, ansatz, x, num_qubits):
     with h5py.File(folders.training_data_file, "r") as f:
         td = f["trainig_data"]
         checkpoints = td.attrs["checkpoints"]
@@ -85,4 +87,4 @@ def recover_and_plot(folders: mf.ModelFolders, map: dm.DomainMap, ansatz, device
             iter = f["trainig_data"][cpt_group].attrs["last_iteration"]
 
         plot_cost(folders, iter, cost_data)
-        plot_circuit_function(folders, map, ansatz, device, w, x)
+        plot_circuit_function(folders, map, ansatz, w, x, num_qubits)
