@@ -1,6 +1,9 @@
 import quantum_derivatives as qd
 import domain_map as dm
 
+import pennylane.numpy as np
+
+
 class HagenPoiseuille:
     def __init__(self, x0: float, xf: float, G: float, R: float, mu: float):
         self.map = dm.LinearMap(x0, xf)

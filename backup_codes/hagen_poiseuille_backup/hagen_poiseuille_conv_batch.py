@@ -1,5 +1,5 @@
 import pennylane as qml
-from conv_layers import HurKimPark9 as conv_layer
+from ode_solving.conv_layers import HurKimPark9 as conv_layer
 from pennylane import numpy as np
 from pennylane.numpy.random import Generator, MT19937
 

@@ -1,5 +1,4 @@
-src/data_fitting_models/__pycache__
-src/ode_solving/__pycache__
+**/__pycache__/
 
 img/*
 data/*
