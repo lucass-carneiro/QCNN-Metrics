@@ -1,15 +1,16 @@
 [computer]
 num_qubits = 5
 num_layers = 3
+ansatz = "conv" # sel or conv
 
 [dataset]
 dataset_size = 20
 batch_size = 0
 
 [training]
-folder_name = "hagen_poiseuille"
-max_iters = 10
-abstol = 1.0e-2
+optimizer = "numpy" # numpy or torch
+max_iters = 100
+abstol = 1.0e-5
 step_size = 1.0e-3
 
 [domain]
@@ -20,3 +21,6 @@ xf = 1.0
 G = 1.0
 R = 1.0
 mu = 1.0
+
+[output]
+folder_name = "hagen_poiseuille"

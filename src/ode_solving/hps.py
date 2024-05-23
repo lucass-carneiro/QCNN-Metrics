@@ -33,11 +33,12 @@ def main(args):
     # Configuration
     num_qubits = config_file["computer"]["num_qubits"]
     num_layers = config_file["computer"]["num_layers"]
+    ansatz = config_file["computer"]["ansatz"]
     
     dataset_size = config_file["dataset"]["dataset_size"]
     batch_size = config_file["dataset"]["batch_size"]
 
-    folder_name = config_file["training"]["folder_name"]
+    optimizer = config_file["training"]["optimizer"]
     max_iters = config_file["training"]["max_iters"]
     abstol = config_file["training"]["abstol"]
     step_size = config_file["training"]["step_size"]
@@ -48,6 +49,8 @@ def main(args):
     G = config_file["hagen-poiseuille-params"]["G"]
     R = config_file["hagen-poiseuille-params"]["R"]
     mu = config_file["hagen-poiseuille-params"]["mu"]
+
+    folder_name = f"{config_file["output"]["folder_name"]}_{optimizer}_{ansatz}"
 
     # These variables are used when using the kokkos backend
     #os.environ["OMP_PROC_BIND"] = "spread"
@@ -67,8 +70,13 @@ def main(args):
     hp_problem = hp.HagenPoiseuille(x0, xf, G, R, mu)
 
     # Ansatz
-    ansatz_type = ans.AnsatzSEL(num_qubits, num_layers, random_generator)
-    #ansatz_type = ans.AnsatzConv(num_qubits, conv_layer, random_generator)
+    if ansatz == "sel":
+        ansatz_type = ans.AnsatzSEL(num_qubits, num_layers, random_generator)
+    elif ansatz == "conv":
+        ansatz_type = ans.AnsatzConv(num_qubits, conv_layer, random_generator)
+    else:
+        print(f"Unknown ansatz \"{ansatz}\"")
+        exit(1)
 
     # Sampling points (global coordinates)
     x = np.linspace(
@@ -88,16 +96,31 @@ def main(args):
     )
     
     # Optimize
-    opt.torch_optimize(
-        folders,
-        ansatz_type.ansatz,
-        num_qubits,
-        ansatz_type.weights,
-        x,
-        params,
-        hp_problem,
-        random_generator
-    )
+    if optimizer == "numpy":
+        opt.numpy_optimize(
+            folders,
+            ansatz_type.ansatz,
+            num_qubits,
+            ansatz_type.weights,
+            x,
+            params,
+            hp_problem,
+            random_generator
+        )
+    elif optimizer == "torch":
+        opt.torch_optimize(
+            folders,
+            ansatz_type.ansatz,
+            num_qubits,
+            ansatz_type.weights,
+            x,
+            params,
+            hp_problem,
+            random_generator
+        )
+    else:
+        print(f"Unrecognized optimizer \"{optimizer}\"")
+        exit(1)
 
     # Plots
     plt.recover_and_plot(

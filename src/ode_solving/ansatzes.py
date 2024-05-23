@@ -39,11 +39,8 @@ class AnsatzConv:
 
     def conv_block(self, p):
         qml.Barrier(wires=range(self.num_qubits))
-        self.conv_layer.layer(p[0], [0, 1])
-        self.conv_layer.layer(p[1], [1, 2])
-        self.conv_layer.layer(p[2], [2, 3])
-        self.conv_layer.layer(p[3], [3, 4])
-        self.conv_layer.layer(p[4], [4, 0])
+        for i in range(self.num_qubits):
+            self.conv_layer.layer(p[i], [i, (i + 1) % self.num_qubits])
         qml.Barrier(wires=range(self.num_qubits))
 
     def W(self, theta):
