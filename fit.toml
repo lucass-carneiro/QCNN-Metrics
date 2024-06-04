@@ -1,6 +1,6 @@
 [computer]
 num_qubits = 4
-num_layers = 2
+num_layers = 1
 ansatz = "sel" # sel or conv
 
 [dataset]
@@ -9,7 +9,7 @@ batch_size = 0
 
 [training]
 optimizer = "numpy" # numpy or torch
-max_iters = 1000
+max_iters = 5
 abstol = 1.0e-5
 step_size = 1.0e-3
 
@@ -18,12 +18,7 @@ x0 = 0.0
 xf = 1.0
 
 [problem]
-problem_type = "hagen-poiseuille"
-
-[hagen-poiseuille-params]
-G = 1.0
-R = 1.0
-mu = 1.0
+problem_type = "fit"
 
 [output]
-folder_name = "hagen_poiseuille"
+folder_name = "fit_line"

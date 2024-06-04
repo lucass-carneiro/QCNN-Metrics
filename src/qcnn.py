@@ -1,4 +1,4 @@
-"""Hagen-Poiseuille Quantum Solver
+"""Quantum Solver
 
 Usage:
   hps.py <config-file>
@@ -10,21 +10,20 @@ Options:
   --version     Show version.
 """
 
-import hagen_poiseuille as hp
-import model_folders as mf
-import optimizer_params as op
-import draw_and_plot as plt
-import optimize as opt
-import ansatzes as ans
-
-from conv_layers import HurKimPark9 as conv_layer
-
-from pennylane import numpy as np
-from pennylane.numpy.random import Generator, MT19937
-
-import docopt
-
+# These variables are used when using the kokkos backend
 import tomllib
+import docopt
+from pennylane.numpy.random import Generator, MT19937
+from pennylane import numpy as np
+from conv_layers import HurKimPark9 as conv_layer
+import ansatzes as ans
+import optimize as opt
+import draw_and_plot as plt
+import optimizer_params as op
+import model_folders as mf
+import function_fitting as ff
+import hagen_poiseuille as hp
+
 
 def main(args):
     with open(args["<config-file>"], "rb") as f:
@@ -34,7 +33,7 @@ def main(args):
     num_qubits = config_file["computer"]["num_qubits"]
     num_layers = config_file["computer"]["num_layers"]
     ansatz = config_file["computer"]["ansatz"]
-    
+
     dataset_size = config_file["dataset"]["dataset_size"]
     batch_size = config_file["dataset"]["batch_size"]
 
@@ -45,17 +44,15 @@ def main(args):
 
     x0 = config_file["domain"]["x0"]
     xf = config_file["domain"]["xf"]
-    
-    G = config_file["hagen-poiseuille-params"]["G"]
-    R = config_file["hagen-poiseuille-params"]["R"]
-    mu = config_file["hagen-poiseuille-params"]["mu"]
+
+    problem_type = config_file["problem"]["problem_type"]
+
+    if problem_type == "hagen-poiseuille":
+        G = config_file["hagen-poiseuille-params"]["G"]
+        R = config_file["hagen-poiseuille-params"]["R"]
+        mu = config_file["hagen-poiseuille-params"]["mu"]
 
     folder_name = f"{config_file["output"]["folder_name"]}_{optimizer}_{ansatz}"
-
-    # These variables are used when using the kokkos backend
-    #os.environ["OMP_PROC_BIND"] = "spread"
-    #os.environ["OMP_PLACES"] = "threads"
-    #os.environ["OMP_NUM_THREADS"] = str(num_qubits)
 
     # Data folders
     folders = mf.ModelFolders(folder_name)
@@ -65,9 +62,6 @@ def main(args):
 
     # Random generator
     random_generator = Generator(MT19937(seed=100))
-
-    # Problem to solve
-    hp_problem = hp.HagenPoiseuille(x0, xf, G, R, mu)
 
     # Ansatz
     if ansatz == "sel":
@@ -80,11 +74,23 @@ def main(args):
 
     # Sampling points (global coordinates)
     x = np.linspace(
-        hp_problem.map.global_start, 
-        hp_problem.map.global_end,
+        x0,
+        xf,
         num=dataset_size,
         endpoint=True
     )
+
+    # Problem to solve
+    if problem_type == "hagen-poiseuille":
+        problem = hp.HagenPoiseuille(x0, xf, G, R, mu)
+    elif problem_type == "fit":
+        def f(x):
+            return np.exp(x * np.cos(3.0 * np.pi * x)) / 2.0
+
+        problem = ff.FitToFunction(x0, xf, f)
+    else:
+        print(f"Unknown problem type \"{problem_type}\"")
+        exit(1)
 
     # Draw circuit
     plt.draw_circuit(
@@ -94,7 +100,7 @@ def main(args):
         ansatz_type.weights,
         0.0
     )
-    
+
     # Optimize
     if optimizer == "numpy":
         opt.numpy_optimize(
@@ -104,7 +110,7 @@ def main(args):
             ansatz_type.weights,
             x,
             params,
-            hp_problem,
+            problem,
             random_generator
         )
     elif optimizer == "torch":
@@ -115,7 +121,7 @@ def main(args):
             ansatz_type.weights,
             x,
             params,
-            hp_problem,
+            problem,
             random_generator
         )
     else:
@@ -125,7 +131,7 @@ def main(args):
     # Plots
     plt.recover_and_plot(
         folders,
-        hp_problem.map,
+        problem.map,
         ansatz_type.ansatz,
         x,
         num_qubits
@@ -135,7 +141,7 @@ def main(args):
 if __name__ == "__main__":
     args = docopt.docopt(
         __doc__,
-        version="Hagen-Poiseuille Quantum Solver 1.0"
+        version="Quantum Solver 1.0"
     )
-    
+
     main(args)
