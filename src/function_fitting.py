@@ -25,6 +25,9 @@ class FitToFunction(prb.Problem):
             print(f"Unrecognized optimizer \"{optimizer}\"")
             exit(1)
 
+    def get_domain_map(self):
+        return self.map
+
     def cost_pointwise(self, node, weights, x):
         X = self.map.global2local(x)
         Y = node(weights, x=X)

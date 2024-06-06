@@ -1,5 +1,3 @@
-import pennylane.numpy as np
-
 import adios2
 
 import os

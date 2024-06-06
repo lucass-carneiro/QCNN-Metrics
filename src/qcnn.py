@@ -133,16 +133,8 @@ def main(args):
         logger.error(f"Unrecognized optimizer \"{config.optimizer}\"")
         exit(1)
 
-    exit(0)
-
     # Plots
-    plt.recover_and_plot(
-        folders,
-        problem.map,
-        ansatz_type.ansatz,
-        x,
-        num_qubits
-    )
+    plt.recover_and_plot(output, config, ansatz_type, problem, x)
 
 
 if __name__ == "__main__":

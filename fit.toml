@@ -2,7 +2,7 @@
 num_qubits = 2
 
 [circuit]
-ansatz = "conv"
+ansatz = "sel"
 conv_layer = "FreeVatanWilliams"
 num_layers = 1
 
@@ -12,7 +12,7 @@ batch_size = 0
 
 [training]
 optimizer = "numpy"
-max_iters = 5
+max_iters = 1000
 abstol = 1.0e-5
 step_size = 1.0e-3
 
@@ -24,4 +24,4 @@ xf = 1.0
 problem_type = "fit"
 
 [output]
-folder_name = "fit_line"
+folder_name = "/home/lucas/fit"

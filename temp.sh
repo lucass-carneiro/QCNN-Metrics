@@ -4,8 +4,8 @@ export OMP_PLACES=threads
 
 source venv/bin/activate
 
-echo $OMP_NUM_THREADS
-echo $OMP_PROC_BIND
-echo $OMP_PLACES
+echo "Using" $OMP_NUM_THREADS "threads"
+echo "Process binding:" $OMP_PROC_BIND
+echo "Places:" $OMP_PLACES
 
 python src/qcnn.py fit.toml

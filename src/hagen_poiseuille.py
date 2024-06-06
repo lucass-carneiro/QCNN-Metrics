@@ -10,6 +10,9 @@ class HagenPoiseuille(prb.Problem):
         self.R = R
         self.mu = mu
 
+    def get_domain_map(self):
+        return self.map
+
     def cost_int_pointwise(self, node, weights, x):
         # Get local X
         X = self.map.global2local(x)
@@ -50,6 +53,9 @@ class PlaneHagenPoiseuille(prb.Problem):
         self.G = G
         self.R = R
         self.mu = mu
+
+    def get_domain_map(self):
+        return self.map
 
     def cost_int_pointwise(self, node, weights, x):
         # Get local X

@@ -125,7 +125,7 @@ def numpy_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, pa
         first_iter = out.first_iter
         weights = np.array(out.weights, requires_grad=True)
     else:
-        first_iter = 1
+        first_iter = 0
         weights = ansatz.weights
 
     last_iter = first_iter + params.max_iters
