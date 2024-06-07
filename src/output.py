@@ -28,8 +28,9 @@ class Output:
         # Recover data from previous checkpoint
         if len(file_list) != 0:
             self.last_checkpoint = int(file_list[-1][0])
-            logger.info(f"Recovering data from checkpoint {
-                        self.last_checkpoint}")
+            logger.info(
+                f"Recovering data from checkpoint {self.last_checkpoint}"
+            )
 
             prev_output_file = os.path.join(
                 self.output_name,
