@@ -10,7 +10,7 @@
 
 # Job settings
 
-PAR_FILE=$SLURM_JOB_NAME".toml"
+PAR_FILE=$HOME/$SLURM_JOB_NAME".toml"
 OUT_FILE=$SLURM_JOB_NAME".out"
 ERR_FILE=$SLURM_JOB_NAME".err"
 
