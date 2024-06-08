@@ -44,6 +44,6 @@ echo -e "Job tasks: $SLURM_NTASKS"
 echo -e "Job threads: $OMP_NUM_THREADS"
 echo -e "Submit directory: $SLURM_SUBMIT_DIR"
 
-singularity exec $QCNN_SING_IMG bash $QCNN_SCRIPT $QCNN_REQUIREMENTS $QCNN_MAIN $PAR_FILE
+singularity exec $QCNN_SING_IMG bash $QCNN_SCRIPT $QCNN_REQUIREMENTS $QCNN_MAIN $PAR_FILE 1> $OUT_FILE 2> $ERR_FILE
 
 echo -e "Ending job $(date +'%d-%m-%Y as %T')"
