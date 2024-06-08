@@ -6,7 +6,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1 #16
 #SBATCH --time=1:00:00 #10
-#SBATCH --job-name=qcnn_train
+#SBATCH --job-name=qcnn
 
 # Job settings
 
