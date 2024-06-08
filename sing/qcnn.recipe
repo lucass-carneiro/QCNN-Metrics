@@ -1,0 +1,16 @@
+Bootstrap: docker
+From: archlinux:latest
+
+%help
+    This is a singularity recipe for making QCNN-Metrics usable in clusters where singularity is available
+
+%labels
+    CREATOR Lucas Timotheo Sanches
+
+%files
+    requirements.txt /root
+
+%post
+    cd /root
+    pacman-key --init
+    pacman -Syyuu --noconfirm python python-pip openmp adios2 git cuda neovim cmake clang gcc
