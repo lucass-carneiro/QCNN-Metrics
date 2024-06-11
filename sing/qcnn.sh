@@ -1,4 +1,8 @@
-python -m venv venv
+if [ ! -d "venv" ]; then
+    echo "Creating python venv"
+    python -m venv venv
+fi
+
 source venv/bin/activate
 
 pip install --upgrade pip
