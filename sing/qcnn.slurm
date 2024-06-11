@@ -33,7 +33,7 @@ export OMP_PLACES=threads
 
 # Job dirs
 
-mkdir $JOB_DIR
+mkdir -p $JOB_DIR
 cd $JOB_DIR
 
 # Job
