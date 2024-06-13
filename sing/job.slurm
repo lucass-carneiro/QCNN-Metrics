@@ -9,18 +9,18 @@
 
 # Job settings
 
-PAR_FILE=$1
+QCNN_SING_IMG=$1
+PAR_FILE=$2
+QCNN_DIR=$3
+
 OUT_FILE=$SLURM_JOB_NAME".out"
 ERR_FILE=$SLURM_JOB_NAME".err"
 
 JOB_DIR=$SLURM_JOB_NAME
 
-QCNN_DIR=$HOME/QCNN-Metrics
 QCNN_REQUIREMENTS=$QCNN_DIR/requirements.txt
 QCNN_MAIN=$QCNN_DIR/src/qcnn.py
 QCNN_SCRIPT=$QCNN_DIR/sing/qcnn.sh
-
-QCNN_SING_IMG=$HOME/qcnn.simg
 
 # Job env
 
@@ -33,8 +33,8 @@ export OMP_PLACES=threads
 # Job dirs
 
 mkdir -p $JOB_DIR
-cp -u $PAR_FILE $JOB_DIR
 cd $JOB_DIR
+cp -u $PAR_FILE par.toml
 
 # Job
 
@@ -44,6 +44,6 @@ echo -e "Job tasks: $SLURM_NTASKS"
 echo -e "Job threads: $OMP_NUM_THREADS"
 echo -e "Submit directory: $SLURM_SUBMIT_DIR"
 
-singularity exec $QCNN_SING_IMG bash $QCNN_SCRIPT $QCNN_REQUIREMENTS $QCNN_MAIN $PAR_FILE 1> $OUT_FILE 2> $ERR_FILE
+singularity exec $QCNN_SING_IMG bash $QCNN_SCRIPT $QCNN_REQUIREMENTS $QCNN_MAIN par.toml 1> $OUT_FILE 2> $ERR_FILE
 
 echo -e "Ending job $(date +'%d-%m-%Y as %T')"
