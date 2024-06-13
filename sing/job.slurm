@@ -6,11 +6,10 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1 #16
 #SBATCH --time=1:00:00 #10
-#SBATCH --job-name=qcnn
 
 # Job settings
 
-PAR_FILE=$HOME/$SLURM_JOB_NAME".toml"
+PAR_FILE=$1
 OUT_FILE=$SLURM_JOB_NAME".out"
 ERR_FILE=$SLURM_JOB_NAME".err"
 
@@ -34,6 +33,7 @@ export OMP_PLACES=threads
 # Job dirs
 
 mkdir -p $JOB_DIR
+cp -u $PAR_FILE $JOB_DIR
 cd $JOB_DIR
 
 # Job
