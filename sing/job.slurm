@@ -4,8 +4,8 @@
 
 #SBATCH --partition=fast 
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1 #16
-#SBATCH --time=1:00:00 #10
+#SBATCH --ntasks-per-node=64 #16
+#SBATCH --time=1-00:00:00 #10
 
 # Job settings
 
