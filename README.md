@@ -75,3 +75,11 @@ sudo singularity build qcnn.simg singularity/qcnn.recipe
 ```
 
 After the image is built, copy it over to the cluster where you will be running the code.
+
+## Submitting the job
+
+TODO: This section needs more detail
+
+```bash
+sbatch --job-name=fit_0 job.slurm /home/lucas.t/qcnn.simg /home/lucas.t/fit.toml /home/lucas.t/QCNN-Metrics
+```
