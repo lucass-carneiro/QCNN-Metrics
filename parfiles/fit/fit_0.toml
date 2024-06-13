@@ -4,6 +4,7 @@ num_qubits = 2
 [circuit]
 ansatz = "sel"
 num_layers = 1
+conv_layer = "FreeVatanWilliams"
 
 [dataset]
 dataset_size = 20
