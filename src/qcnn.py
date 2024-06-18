@@ -1,9 +1,9 @@
 """Quantum Solver
 
 Usage:
-  hps.py <config-file>
-  hps.py (-h | --help)
-  hps.py --version
+  qcnn.py <config-file> [--plot-only]
+  qcnn.py (-h | --help)
+  qcnn.py --version
 
 Options:
   -h --help     Show this screen.
@@ -42,9 +42,6 @@ def main(args):
 
     config_file_path = args["<config-file>"]
     config = cfg.ConfigData(config_file_path)
-
-    # Data folders
-    output = out.Output(config.output_folder_name, config_file_path)
 
     # Optimization params
     params = op.OptimizerParams(
@@ -91,50 +88,66 @@ def main(args):
             config.hp_params.R,
             config.hp_params.mu
         )
+        target = None
+    elif config.problem_type == "plane-hagen-poiseuille":
+        problem = hp.PlaneHagenPoiseuille(
+            config.x0,
+            config.xf,
+            config.hp_params.G,
+            config.hp_params.R,
+            config.hp_params.mu
+        )
+        target = None
     elif config.problem_type == "fit":
         problem = ff.FitToFunction(config.x0, config.xf, config.optimizer)
+        target = problem.f(x)
     else:
         logger.error(f"Unknown problem type \"{config.problem_type}\"")
         exit(1)
 
+    # Optimize
+    if not args["--plot-only"]:
+        # Data folders
+        output = out.Output(config.output_folder_name, config_file_path)
+
+        if config.optimizer == "numpy":
+            opt.numpy_optimize(
+                output,
+                ansatz_type,
+                problem,
+                params,
+                config,
+                x,
+                random_generator
+            )
+        elif config.optimizer == "torch":
+            # opt.torch_optimize(
+            #     output,
+            #     ansatz_type.ansatz,
+            #     config.num_qubits,
+            #     ansatz_type.weights,
+            #     x,
+            #     params,
+            #     problem,
+            #     random_generator
+            # )
+            pass
+        else:
+            logger.error(f"Unrecognized optimizer \"{config.optimizer}\"")
+            exit(1)
+
     # Draw circuit
     plt.draw_circuit(
-        output,
+        config.output_folder_name,
         ansatz_type.ansatz,
         config.num_qubits,
         ansatz_type.weights,
         0.0
     )
 
-    # Optimize
-    if config.optimizer == "numpy":
-        opt.numpy_optimize(
-            output,
-            ansatz_type,
-            problem,
-            params,
-            config,
-            x,
-            random_generator
-        )
-    elif config.optimizer == "torch":
-        # opt.torch_optimize(
-        #     output,
-        #     ansatz_type.ansatz,
-        #     config.num_qubits,
-        #     ansatz_type.weights,
-        #     x,
-        #     params,
-        #     problem,
-        #     random_generator
-        # )
-        pass
-    else:
-        logger.error(f"Unrecognized optimizer \"{config.optimizer}\"")
-        exit(1)
-
     # Plots
-    plt.recover_and_plot(output, config, ansatz_type, problem, x)
+    plt.recover_and_plot(config.output_folder_name,
+                         config, ansatz_type, problem, x, target)
 
 
 if __name__ == "__main__":

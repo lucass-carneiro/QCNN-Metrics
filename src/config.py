@@ -28,7 +28,7 @@ class ConfigData:
 
         self.output_folder_name = self.config_file["output"]["folder_name"]
 
-        if self.problem_type == "hagen-poiseuille":
+        if self.problem_type == "hagen-poiseuille" or self.problem_type == "plane-hagen-poiseuille":
             self.hp_params = hp_params.HagenPoiseuilleParams(
                 self.config_file["hagen-poiseuille-params"]["G"],
                 self.config_file["hagen-poiseuille-params"]["R"],

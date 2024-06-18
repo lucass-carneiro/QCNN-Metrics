@@ -1,20 +1,20 @@
 [computer]
-num_qubits = 2
+num_qubits = 4
 
 [circuit]
 ansatz = "sel"
-num_layers = 1
+num_layers = 2
 conv_layer = "FreeVatanWilliams"
 
 [dataset]
-dataset_size = 20
+dataset_size = 40
 batch_size = 0
 
 [training]
 optimizer = "numpy"
-max_iters = 1000
+max_iters = 10000
 abstol = 1.0e-5
-step_size = 1.0e-3
+step_size = 1.0e-4
 
 [domain]
 x0 = 0.0
@@ -24,4 +24,4 @@ xf = 1.0
 problem_type = "fit"
 
 [output]
-folder_name = "~/fit_0"
+folder_name = "fit_0"

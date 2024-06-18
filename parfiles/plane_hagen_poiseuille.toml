@@ -1,14 +1,17 @@
 [computer]
 num_qubits = 4
+
+[circuit]
+ansatz = "sel"
 num_layers = 2
-ansatz = "sel" # sel or conv
+conv_layer = "FreeVatanWilliams"
 
 [dataset]
-dataset_size = 20
+dataset_size = 40
 batch_size = 0
 
 [training]
-optimizer = "numpy" # numpy or torch
+optimizer = "numpy"
 max_iters = 1000
 abstol = 1.0e-5
 step_size = 1.0e-3
@@ -18,7 +21,7 @@ x0 = 0.0
 xf = 1.0
 
 [problem]
-problem_type = "hagen-poiseuille"
+problem_type = "plane-hagen-poiseuille"
 
 [hagen-poiseuille-params]
 G = 1.0
@@ -26,4 +29,4 @@ R = 1.0
 mu = 1.0
 
 [output]
-folder_name = "hagen_poiseuille"
+folder_name = "plane_hagen_poiseuille"
