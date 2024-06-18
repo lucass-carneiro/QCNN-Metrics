@@ -88,7 +88,6 @@ def main(args):
             config.hp_params.R,
             config.hp_params.mu
         )
-        target = None
     elif config.problem_type == "plane-hagen-poiseuille":
         problem = hp.PlaneHagenPoiseuille(
             config.x0,
@@ -97,11 +96,8 @@ def main(args):
             config.hp_params.R,
             config.hp_params.mu
         )
-        target = config.hp_params.G / \
-            (2.0 * config.hp_params.mu) * x * (config.xf - x)
     elif config.problem_type == "fit":
-        problem = ff.FitToFunction(config.x0, config.xf, config.optimizer)
-        target = problem.f(x)
+        problem = ff.FitToFunction(config.x0, config.xf, x, config.optimizer)
     else:
         logger.error(f"Unknown problem type \"{config.problem_type}\"")
         exit(1)
@@ -122,17 +118,15 @@ def main(args):
                 random_generator
             )
         elif config.optimizer == "torch":
-            # opt.torch_optimize(
-            #     output,
-            #     ansatz_type.ansatz,
-            #     config.num_qubits,
-            #     ansatz_type.weights,
-            #     x,
-            #     params,
-            #     problem,
-            #     random_generator
-            # )
-            pass
+            opt.torch_optimize(
+                output,
+                ansatz_type,
+                problem,
+                params,
+                config,
+                x,
+                random_generator
+            )
         else:
             logger.error(f"Unrecognized optimizer \"{config.optimizer}\"")
             exit(1)
@@ -148,7 +142,7 @@ def main(args):
 
     # Plots
     plt.recover_and_plot(config.output_folder_name,
-                         config, ansatz_type, problem, x, target)
+                         config, ansatz_type, problem, x, problem.target)
 
 
 if __name__ == "__main__":

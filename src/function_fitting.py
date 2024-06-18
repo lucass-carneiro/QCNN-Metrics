@@ -15,8 +15,10 @@ def f_numpy(x):
 
 
 class FitToFunction(prb.Problem):
-    def __init__(self, x0: float, xf: float, optimizer):
+    def __init__(self, x0: float, xf: float, x, optimizer):
         self.map = dm.LinearMap(x0, xf)
+        self.target = f_numpy(x)
+
         if optimizer == "numpy":
             self.f = f_numpy
         elif optimizer == "torch":

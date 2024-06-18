@@ -14,96 +14,111 @@ import os
 import logging
 logger = logging.getLogger(__name__)
 
-# def torch_optimize(folders: mf.ModelFolders, circuit, num_qubits, weights, data, params: op.OptimizerParams, problem, random_generator):
-#     # Quantum device
-#     device = qml.device(
-#         "default.qubit",
-#         wires=num_qubits,
-#         shots=None
-#     )
 
-#     node = qml.QNode(
-#         circuit,
-#         device,
-#         interface="torch",
-#         diff_method="backprop"
-#     )
+def torch_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, params: op.OptimizerParams, config: cfg.ConfigData, data_in, random_generator):
+    # Quantum device
+    device = qml.device(
+        "default.qubit",
+        wires=config.num_qubits,
+        shots=None
+    )
 
-#     # Recovery
-#     if os.path.exists(folders.training_data_file):
-#         print("Recovering previous training data")
-#         first_iter, weights = io.recover_training_data(folders)
-#     else:
-#         first_iter = 0
+    node = qml.QNode(
+        ansatz.ansatz,
+        device,
+        interface="torch",
+        diff_method="backprop"
+    )
 
-#     last_iter = first_iter + params.max_iters
+    # Recovery
+    if out.recovered:
+        first_iter = out.first_iter
+        weights = torch.tensor(out.weights, requires_grad=True, device="cuda")
+    else:
+        first_iter = 0
+        weights = torch.tensor(
+            ansatz.weights, requires_grad=True, device="cuda")
 
-#     # Initial data
-#     cost_data = []
-#     stopping_criteria = "max iterations reached"
+    last_iter = first_iter + params.max_iters
 
-#     N_data = len(data)
+    out.output_stream.write_attribute("first_iter", first_iter)
+    out.output_stream.write_attribute("last_iter", last_iter - 1)
+    out.output_stream.write_attribute("weights_shape", weights.shape)
 
-#     # Pytorch definitions
-#     weights_torch = torch.tensor(weights, requires_grad=True, device="cuda")
+    opt = torch.optim.LBFGS([weights], lr=params.step)
 
-#     if params.batch_size == 0:
-#         batch_data = torch.tensor(data, requires_grad=False, device="cuda")
-#         N_batch = N_data
+    # Adaptive LR. See
+    # https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ReduceLROnPlateau.html#torch.optim.lr_scheduler.ReduceLROnPlateau
+    sch = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        opt,
+        "min",
+        0.1,
+        2,
+        1.0e-4,
+        "rel",
+        0,
+        0.0,
+        1.0e-8
+    )
 
-#     opt = torch.optim.LBFGS(
-#         [weights_torch],
-#         lr=params.step
-#     )
+    stopping_criteria = "max iterations reached"
 
-#     # Optimization loop
-#     for i in range(first_iter, last_iter):
-#         if params.batch_size != 0:
-#             batch_indices = random_generator.integers(
-#                 1,
-#                 N_data - 2,
-#                 size=params.batch_size,
-#                 endpoint=True
-#             )
+    data = torch.tensor(data_in, requires_grad=False, device="cuda")
+    N_data = len(data)
 
-#             batch_data = torch.tensor(
-#                 data[batch_indices], requires_grad=False, device="cuda")
-#             N_batch = params.batch_size
+    # Optimization loop
+    for i in range(first_iter, last_iter):
+        if params.batch_size != 0:
+            batch_indices = random_generator.integers(
+                1,
+                N_data - 2,
+                size=params.batch_size,
+                endpoint=True
+            )
 
-#         def torch_cost():
-#             opt.zero_grad()
-#             c = torch.sqrt(problem.cost(
-#                 node, weights_torch, batch_data, N_batch))
-#             c.backward()
-#             return c
+            batch_data = torch.tensor(
+                data[batch_indices], requires_grad=False, device="cuda")
+            N_batch = params.batch_size
+        else:
+            batch_data = data
+            N_batch = N_data
 
-#         # save, and print the current cost
-#         c = torch_cost().item()
-#         cost_data.append(c)
+        def torch_cost():
+            opt.zero_grad()
+            c = torch.sqrt(problem.cost(
+                node, weights, batch_data, N_batch))
+            c.backward()
+            return c
 
-#         print("Loss in teration", i, "=", c)
+        # save, and print the current cost
+        c = torch_cost().item()
 
-#         if np.abs(c) < params.abstol:
-#             stopping_criteria = "absolute tolerance reached"
-#             break
-#         else:
-#             opt.step(torch_cost)
+        out.output_stream.begin_step()
+        out.output_stream.write("iteration", i)
+        out.output_stream.write("cost", c)
 
-#     # Results
-#     print("Training results:")
-#     print("  Stopping criteria: ", stopping_criteria)
-#     print("  Iterations:", i + 1)
-#     print("  Final cost value:", cost_data[-1])
+        out.output_stream.write(
+            "weights",
+            weights.cpu().detach().numpy(),
+            weights.shape,
+            [0] * len(weights.shape),
+            weights.shape
+        )
 
-#     # Save Data
-#     io.save_training_data(
-#         folders,
-#         stopping_criteria,
-#         first_iter,
-#         i,
-#         cost_data,
-#         weights_torch.cpu().detach().numpy()
-#     )
+        out.output_stream.end_step()
+
+        if np.abs(c) < params.abstol:
+            stopping_criteria = "absolute tolerance reached"
+            break
+        else:
+            opt.step(torch_cost)
+            sch.step(c)
+
+        logger.info(f"(Loss, LR) in iteration {i} = ({c}, {sch.get_last_lr()})")
+
+    # Results
+    logger.info("Training done")
+    logger.info(f"Stopping criteria: {stopping_criteria}")
 
 
 def numpy_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, params: op.OptimizerParams, config: cfg.ConfigData, data, random_generator):
@@ -157,8 +172,6 @@ def numpy_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, pa
         # save, and print the current cost
         c = np.sqrt(problem.cost(node, weights, batch_data, N_batch))
 
-        logger.info(f"Loss in teration {i} = {c}")
-
         out.output_stream.begin_step()
         out.output_stream.write("iteration", i)
         out.output_stream.write("cost", c)
@@ -171,6 +184,8 @@ def numpy_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, pa
             weights.shape
         )
 
+        out.output_stream.end_step()
+
         if np.abs(c) < params.abstol:
             stopping_criteria = "absolute tolerance reached"
             break
@@ -180,7 +195,7 @@ def numpy_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, pa
                 weights
             )
 
-        out.output_stream.end_step()
+        logger.info(f"Loss in teration {i} = {c}")
 
     # Results
     logger.info("Training done")
