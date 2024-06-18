@@ -97,7 +97,8 @@ def main(args):
             config.hp_params.R,
             config.hp_params.mu
         )
-        target = None
+        target = config.hp_params.G / \
+            (2.0 * config.hp_params.mu) * x * (config.xf - x)
     elif config.problem_type == "fit":
         problem = ff.FitToFunction(config.x0, config.xf, config.optimizer)
         target = problem.f(x)
