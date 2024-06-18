@@ -53,7 +53,7 @@ def torch_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, pa
         opt,
         "min",
         0.1,
-        2,
+        5,
         1.0e-4,
         "rel",
         0,
