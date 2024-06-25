@@ -48,11 +48,12 @@ class HagenPoiseuille(prb.Problem):
 
 
 class PlaneHagenPoiseuille(prb.Problem):
-    def __init__(self, x0: float, xf: float, G: float, R: float, mu: float):
+    def __init__(self, x0: float, xf: float, x, G: float, R: float, mu: float):
         self.map = dm.LinearMap(x0, xf)
         self.G = G
         self.R = R
         self.mu = mu
+        self.target = self.G / (2 * self.mu) * x * (xf - x)
 
     def get_domain_map(self):
         return self.map

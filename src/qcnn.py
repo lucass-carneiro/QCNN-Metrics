@@ -92,6 +92,7 @@ def main(args):
         problem = hp.PlaneHagenPoiseuille(
             config.x0,
             config.xf,
+            x,
             config.hp_params.G,
             config.hp_params.R,
             config.hp_params.mu
