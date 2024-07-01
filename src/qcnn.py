@@ -8,6 +8,7 @@ Usage:
 Options:
   -h --help     Show this screen.
   --version     Show version.
+  --plot-only   Plots the simulation data for the last run without starting a new training run.
 """
 
 
@@ -142,8 +143,7 @@ def main(args):
     )
 
     # Plots
-    plt.recover_and_plot(config.output_folder_name,
-                         config, ansatz_type, problem, x, problem.target)
+    plt.recover_and_plot(config, ansatz_type, problem, x, problem.target)
 
 
 if __name__ == "__main__":

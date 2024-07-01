@@ -5,7 +5,23 @@ theme:
 
 nav:
   - Home: index.md
-  - API Documentation: api.md
+  - Getting started: getting_started.md
+  - API Modules:
+    - ansatz: module_ansatz.md
+    - ansatzes: module_ansatzes.md
+    - config: module_config.md
+    - conv_layer: module_conv_layer.md
+    - domain_map: module_domain_map.md
+    - draw_and_plot: module_draw_and_plot.md
+    - function_fitting: module_function_fitting.md
+    - hagen_poiseuille: module_hagen_poiseuille.md
+    - hp_params: module_hp_params.md
+    - optimize: module_optimize.md
+    - optimizer_params: module_optimizer_params.md
+    - output: module_output.md
+    - problem: module_problem.md
+    - quantum_derivatives: module_quantum_derivatives.md
+    
 
 plugins:
   - search

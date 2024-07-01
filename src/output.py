@@ -1,3 +1,7 @@
+"""
+Contains handlers for ouputting and recovering ADIOS2 training data.
+"""
+
 import adios2
 
 import os
@@ -8,7 +12,20 @@ logger = logging.getLogger(__name__)
 
 
 class Output:
+    """
+    Holds a stream-writtable ADIOS2 file and creates new output files with the
+    the correct naming convention for checkpointing.
+    """
+
     def __init__(self, output_name: str, config_file: str):
+        """
+        Initializes the object
+
+        Parameters:
+          output_name (str): The output folder name where data will be stored.
+          config_file (str): The path of the configuration file, which will be copyied to the output data folder.
+        """
+
         self.output_name = output_name
         self.config_file = os.path.join(self.output_name, config_file)
 
@@ -61,5 +78,8 @@ class Output:
         self.output_stream = adios2.Stream(self.output_file, "w")
 
     def __del__(self):
+        """
+        Deinitializes the object and closes the ADIOS2 output stream.
+        """
         logger.info("Closing output stream")
         self.output_stream.close()

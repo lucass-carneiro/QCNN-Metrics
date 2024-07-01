@@ -1,3 +1,7 @@
+"""
+Draws quantum circuits and plot trained functions.
+"""
+
 import problem as prob
 import output as out
 import config as cfg
@@ -29,6 +33,15 @@ mpl.rcParams['ytick.labelsize'] = font_size
 
 
 def draw_circuit(output_name: str, circuit, num_qubits, *args):
+    """
+    Draws a quantum circuit.
+
+    Parameters:
+      output_name (str): The folder where the plot will be created.
+      circuit (quantum circuit function): The quantum circuit to draw.
+      num_qubits (int): The number of qubits in the circuit.
+      args (any): Extra arguments for matplotlib.
+    """
     fig_name = "model.pdf"
     fig_path = os.path.join(output_name, fig_name)
 
@@ -44,6 +57,14 @@ def draw_circuit(output_name: str, circuit, num_qubits, *args):
 
 
 def plot_cost(output_name: str, iterations, cost_data):
+    """
+    Plots a cost function
+
+    Parameters:
+      output_name (str): The folder where the plot will be created.
+      iterations (array): List of iteration indices in the cost data.
+      cost_data (array): Cost values at each iteration index.
+    """
     fig_name = "cost.pdf"
     fig_path = os.path.join(output_name, fig_name)
 
@@ -65,9 +86,19 @@ def plot_cost(output_name: str, iterations, cost_data):
     plt.savefig(fig_path)
 
 
-def plot_trained_function(output_name: str, config: cfg.ConfigData, ansatz: ans.Ansatz, problem: prob.Problem, weights, data):
+def plot_trained_function(config: cfg.ConfigData, ansatz: ans.Ansatz, problem: prob.Problem, weights, data):
+    """
+    Plots the function currently represented in a quantum circuit.
+
+    Parameters:
+      config (ConfigData): The configuration data used for training.
+      ansatz (Ansatz): The ansatz circuit trained.
+      problem (Problem): The type of problem that was solved (trained for).
+      weights (array): The trained weights of the quantum circuit.
+      data (array): The input domain data.
+    """
     fig_name = "trained.pdf"
-    fig_path = os.path.join(output_name, fig_name)
+    fig_path = os.path.join(config.output_folder_name, fig_name)
 
     logger.info(f"Plotting trained function")
 
@@ -90,9 +121,21 @@ def plot_trained_function(output_name: str, config: cfg.ConfigData, ansatz: ans.
     plt.savefig(fig_path)
 
 
-def plot_trained_error(output_name: str, config: cfg.ConfigData, ansatz: ans.Ansatz, problem: prob.Problem, weights, data, target):
+def plot_trained_error(config: cfg.ConfigData, ansatz: ans.Ansatz, problem: prob.Problem, weights, data, target):
+    """
+    Plots the function currently represented in a quantum circuit together with
+    a target function that the circuit should have achieved.
+
+    Parameters:
+      config (ConfigData): The configuration data used for training.
+      ansatz (Ansatz): The ansatz circuit trained.
+      problem (Problem): The type of problem that was solved (trained for).
+      weights (array): The trained weights of the quantum circuit.
+      data (array): The input data.
+      target (array): The target data, i.e., the data the circuit should have obtained if training was perfect.
+    """
     fig_name = "trained_error.pdf"
-    fig_path = os.path.join(output_name, fig_name)
+    fig_path = os.path.join(config.output_folder_name, fig_name)
 
     logger.info(f"Plotting trained function")
 
@@ -119,9 +162,22 @@ def plot_trained_error(output_name: str, config: cfg.ConfigData, ansatz: ans.Ans
     plt.savefig(fig_path)
 
 
-def plot_trained_error_abs(output_name: str, config: cfg.ConfigData, ansatz: ans.Ansatz, problem: prob.Problem, weights, data, target):
+def plot_trained_error_abs(config: cfg.ConfigData, ansatz: ans.Ansatz, problem: prob.Problem, weights, data, target):
+    """
+    Plots the function currently represented in a quantum circuit and computes
+    the absolute difference to a target function that the circuit should have
+    achieved.
+
+    Parameters:
+      config (ConfigData): The configuration data used for training.
+      ansatz (Ansatz): The ansatz circuit trained.
+      problem (Problem): The type of problem that was solved (trained for).
+      weights (array): The trained weights of the quantum circuit.
+      data (array): The input data.
+      target (array): The target data, i.e., the data the circuit should have obtained if training was perfect.
+    """
     fig_name = "trained_error_abs.pdf"
-    fig_path = os.path.join(output_name, fig_name)
+    fig_path = os.path.join(config.output_folder_name, fig_name)
 
     logger.info(f"Plotting trained function")
 
@@ -146,17 +202,29 @@ def plot_trained_error_abs(output_name: str, config: cfg.ConfigData, ansatz: ans
 
 
 def recover_and_plot(output_name: str, config: cfg.ConfigData, ansatz: ans.Ansatz, problem: prob.Problem, data, target):
+    """
+    Recovers training data from an ADIOS2 file and creates the relevant plots
+    from it.
+
+    Parameters:
+      config (ConfigData): The configuration data used for training.
+      ansatz (Ansatz): The ansatz circuit trained.
+      problem (Problem): The type of problem that was solved (trained for).
+      data (array): The input data.
+      target (array): The target data, i.e., the data the circuit should have obtained if training was perfect.
+    """
     # Find all .bp files
     file_list = list(
         filter(
             lambda x: os.path.splitext(x)[1] == ".bp",
-            os.listdir(output_name)
+            os.listdir(config.output_folder_name)
         )
     )
 
     if len(file_list) == 0:
         logger.error(
-            f"Unable to find bp files to recover from in {output_name}"
+            f"Unable to find bp files to recover from in {
+                config.output_folder_name}"
         )
         exit(1)
 

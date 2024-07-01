@@ -1,9 +1,52 @@
+"""
+Contains definitions relating to the configuration of how and what
+types of training will be performed
+"""
+
 import hp_params
 import tomllib
 
 
 class ConfigData:
+    """
+    Read and process configurations from the `config.toml` file.
+    These files are used to drive the training, selecting which type
+    of training to do and how to do it.
+    """
+
     def __init__(self, config_file_path: str):
+        """
+        Initialize the object.
+
+        Parameters:
+          config_file_path (str): String with the path to a TOML configuration file.
+
+        Attributes:
+          config_file (dict[str, Any]): The loaded TOML configuration file as a dictionary of options.
+
+          num_qubits (int): The total number of qubits to use for training.
+
+          ansatz (str): The type of ansatz to use.
+          conv_layer (str): The name of the convolutional layer to use. Ignored if `ansatz != "conv"`.
+          num_layers (int): The number of entangling layers to use. Ignored if `ansatz != "sel"`.
+
+          dataset_size (int): The number of datapoints to use during training.
+          batch_size (int): The number of subsamples to use during batching. If set to `0`, no batching is used.
+
+          optimizer (str): The training library to use for optimization.
+          max_iters (int): The maximum number of steps the optimizer is allowed to take.
+          abstol (float): The error function value bellow which training stops.
+          setp_size (float): Initial step size for the optimizing algorithm.
+
+          x0 (float): Left domain boundary.
+          xf (float): Right domain boundary.
+
+          problem_type (str): The type of problem to solve.
+
+          output_folder_name (str): The folder where training output will be generated.
+
+          hp_params: (HagenPoiseuilleParams): The parameters for the Hagen-Poiseuille problem to be solved. Only used if `problem_type = "plane-hagen-poiseuille" or "plane-hagen-poiseuille"`
+        """
         with open(config_file_path, "rb") as f:
             self.config_file = tomllib.load(f)
 

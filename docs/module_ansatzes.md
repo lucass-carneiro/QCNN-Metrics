@@ -1,0 +1,3 @@
+# Module `ansatzes`
+
+::: ansatzes

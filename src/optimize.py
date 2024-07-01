@@ -1,3 +1,7 @@
+"""
+Contains the main optimizer functionality for training circuits
+"""
+
 import problem as prb
 import output as out
 import optimizer_params as op
@@ -9,13 +13,23 @@ import pennylane.numpy as np
 
 import torch
 
-import os
-
 import logging
 logger = logging.getLogger(__name__)
 
 
 def torch_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, params: op.OptimizerParams, config: cfg.ConfigData, data_in, random_generator):
+    """
+    Optimizes the quantum circuit to solve a problem using the Torch library.
+
+    Parameters:
+        out (Output): The output object controlling where the training data will be saved to / recovered from.
+        ansatz (Ansatz): The trainable ansatz circuit for solving the problem.
+        problem (Problem): The problem object containing the problem type to be solved.
+        params (OptimizerParams): The configuration parameters of the optimizer.
+        config (ConfigData): The program configuration data.
+        data_in (array): The domain data points.
+        random_generator (numpy.random.Generator): A random number generator used for initializing the circuit weights.
+    """
     # Quantum device
     device = qml.device(
         "default.qubit",
@@ -122,6 +136,18 @@ def torch_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, pa
 
 
 def numpy_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, params: op.OptimizerParams, config: cfg.ConfigData, data, random_generator):
+    """
+    Optimizes the quantum circuit to solve a problem using the Numpy library.
+
+    Parameters:
+        out (Output): The output object controlling where the training data will be saved to / recovered from.
+        ansatz (Ansatz): The trainable ansatz circuit for solving the problem.
+        problem (Problem): The problem object containing the problem type to be solved.
+        params (OptimizerParams): The configuration parameters of the optimizer.
+        config (ConfigData): The program configuration data.
+        data (array): The domain data points.
+        random_generator (numpy.random.Generator): A random number generator used for initializing the circuit weights.
+    """
     # Quantum device
     device = qml.device(
         "lightning.kokkos",

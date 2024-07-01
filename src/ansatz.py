@@ -20,8 +20,7 @@ class Ansatz(metaclass=abc.ABCMeta):
         The enconder block for the ansatz circuit.
 
         Parameters:
-        x: 
-          An array-like object containing the datapoints to encode.
+          x (array): An array-like object containing the datapoints to encode.
         """
         pass
 
@@ -31,8 +30,7 @@ class Ansatz(metaclass=abc.ABCMeta):
         The trainable block for the ansatz circuit.
 
         Parameters:
-          theta: 
-            An array-like object containing the list of trainable parameters.
+          theta (array): An array-like object containing the list of trainable parameters.
         """
         pass
 
