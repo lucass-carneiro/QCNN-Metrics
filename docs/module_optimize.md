@@ -1,3 +1,0 @@
-# Module `optimize`
-
-::: optimize
