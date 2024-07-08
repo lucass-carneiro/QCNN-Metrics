@@ -7,9 +7,6 @@ From: archlinux:latest
 %labels
     CREATOR Lucas Timotheo Sanches
 
-%files
-    requirements.txt /root
-
 %post
     cd /root
     pacman-key --init
