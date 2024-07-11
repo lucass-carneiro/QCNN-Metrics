@@ -5,7 +5,7 @@ Draws quantum circuits and plot trained functions.
 import problem as prob
 import output as out
 import config as cfg
-import ansatzes as ans
+import ansatz as ans
 import problem as prob
 
 import matplotlib as mpl

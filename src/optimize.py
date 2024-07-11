@@ -5,7 +5,7 @@ Contains the main optimizer functionality for training circuits
 import problem as prb
 import output as out
 import optimizer_params as op
-import ansatzes as ans
+import ansatz as ans
 import config as cfg
 
 import pennylane as qml
