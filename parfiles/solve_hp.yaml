@@ -1,0 +1,31 @@
+computer:
+  num_qubits: 4
+
+circuit:
+  ansatz: "sel"
+  num_layers: 2
+  #conv_layer: "FreeVatanWilliams"
+
+dataset:
+  dataset_size: 40
+  batch_size: 0
+
+training:
+  optimizer: "numpy"
+  max_iters: 2
+  abstol: 1.0e-5
+  step_size: 1.0e-4
+
+domain:
+  x0: 0.0
+  xf: 1.0
+
+problem:
+  type: "plane-hagen-poiseuille"
+  params:
+    G: 1.0
+    R: 1.0
+    mu: 1.0
+
+output:
+  folder_name: "solve_hp_0"

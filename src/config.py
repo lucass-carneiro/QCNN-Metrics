@@ -4,7 +4,7 @@ types of training will be performed
 """
 
 import hp_params
-import tomllib
+import yaml
 
 
 class ConfigData:
@@ -48,12 +48,18 @@ class ConfigData:
           hp_params: (HagenPoiseuilleParams): The parameters for the Hagen-Poiseuille problem to be solved. Only used if `problem_type = "plane-hagen-poiseuille" or "plane-hagen-poiseuille"`
         """
         with open(config_file_path, "rb") as f:
-            self.config_file = tomllib.load(f)
+            # self.config_file = tomllib.load(f)
+            self.config_file = yaml.safe_load(f)
 
         self.num_qubits = self.config_file["computer"]["num_qubits"]
 
         self.ansatz = self.config_file["circuit"]["ansatz"]
-        self.conv_layer = self.config_file["circuit"]["conv_layer"]
+
+        if self.ansatz == "conv":
+            self.conv_layer = self.config_file["circuit"]["conv_layer"]
+        else:
+            self.conv_layer = None
+
         self.num_layers = self.config_file["circuit"]["num_layers"]
 
         self.dataset_size = self.config_file["dataset"]["dataset_size"]
@@ -67,13 +73,13 @@ class ConfigData:
         self.x0 = self.config_file["domain"]["x0"]
         self.xf = self.config_file["domain"]["xf"]
 
-        self.problem_type = self.config_file["problem"]["problem_type"]
+        self.problem_type = self.config_file["problem"]["type"]
 
         self.output_folder_name = self.config_file["output"]["folder_name"]
 
         if self.problem_type == "hagen-poiseuille" or self.problem_type == "plane-hagen-poiseuille":
             self.hp_params = hp_params.HagenPoiseuilleParams(
-                self.config_file["hagen-poiseuille-params"]["G"],
-                self.config_file["hagen-poiseuille-params"]["R"],
-                self.config_file["hagen-poiseuille-params"]["mu"]
+                self.config_file["problem"]["params"]["G"],
+                self.config_file["problem"]["params"]["R"],
+                self.config_file["problem"]["params"]["mu"]
             )

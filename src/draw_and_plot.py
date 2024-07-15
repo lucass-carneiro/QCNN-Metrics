@@ -201,7 +201,7 @@ def plot_trained_error_abs(config: cfg.ConfigData, ansatz: ans.Ansatz, problem: 
     plt.savefig(fig_path)
 
 
-def recover_and_plot(output_name: str, config: cfg.ConfigData, ansatz: ans.Ansatz, problem: prob.Problem, data, target):
+def recover_and_plot(config: cfg.ConfigData, ansatz: ans.Ansatz, problem: prob.Problem, data, target):
     """
     Recovers training data from an ADIOS2 file and creates the relevant plots
     from it.
@@ -233,7 +233,7 @@ def recover_and_plot(output_name: str, config: cfg.ConfigData, ansatz: ans.Ansat
     cost_data = []
 
     for file in file_list:
-        file_path = os.path.join(output_name, file)
+        file_path = os.path.join(config.output_folder_name, file)
 
         logger.info(f"Recovering cost data from checkpoint file {file_path}")
 
@@ -267,11 +267,9 @@ def recover_and_plot(output_name: str, config: cfg.ConfigData, ansatz: ans.Ansat
             requires_grad=True
         )
 
-    plot_cost(output_name, iterations, cost_data)
-    plot_trained_function(output_name, config, ansatz, problem, weights, data)
+    plot_cost(config.output_folder_name, iterations, cost_data)
+    plot_trained_function(config, ansatz, problem, weights, data)
 
     if target is not None:
-        plot_trained_error(output_name, config, ansatz,
-                           problem, weights, data, target)
-        plot_trained_error_abs(output_name, config, ansatz,
-                               problem, weights, data, target)
+        plot_trained_error(config, ansatz, problem, weights, data, target)
+        plot_trained_error_abs(config, ansatz, problem, weights, data, target)

@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 def main(args):
     # Configuration
     logging.basicConfig(
-        format="%(levelname)s [%(asctime)s] [Thread: %(thread)d] [Proc: %(process)d] [%(module)s:%(funcName)s in %(filename)s:%(lineno)d]: %(message)s",
+        format="[%(asctime)s] [Thread: %(thread)d] [Proc: %(process)d] [%(module)s:%(funcName)s in %(filename)s:%(lineno)d] %(levelname)s: %(message)s",
         stream=sys.stdout,
         level=logging.INFO
     )

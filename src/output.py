@@ -27,7 +27,8 @@ class Output:
         """
 
         self.output_name = output_name
-        self.config_file = os.path.join(self.output_name, config_file)
+        self.config_file = os.path.join(
+            self.output_name, os.path.basename(config_file))
 
         # Create output dir
         if not os.path.exists(self.output_name):

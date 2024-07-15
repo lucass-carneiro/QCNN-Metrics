@@ -6,6 +6,7 @@ adios2
 matplotlib
 qiskit
 pylatexenc
+pyyaml
 torch
 
 nvidia-cusparse-cu12
