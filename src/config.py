@@ -34,6 +34,7 @@ class ConfigData:
           batch_size (int): The number of subsamples to use during batching. If set to `0`, no batching is used.
 
           optimizer (str): The training library to use for optimization.
+          use_cuda (bool): Use CUDA for training, if available.
           max_iters (int): The maximum number of steps the optimizer is allowed to take.
           abstol (float): The error function value bellow which training stops.
           setp_size (float): Initial step size for the optimizing algorithm.
@@ -60,12 +61,16 @@ class ConfigData:
         else:
             self.conv_layer = None
 
-        self.num_layers = self.config_file["circuit"]["num_layers"]
+        if self.ansatz == "sel":
+            self.num_layers = self.config_file["circuit"]["num_layers"]
+        else:
+            self.num_layers = None
 
         self.dataset_size = self.config_file["dataset"]["dataset_size"]
         self.batch_size = self.config_file["dataset"]["batch_size"]
 
         self.optimizer = self.config_file["training"]["optimizer"]
+        self.use_cuda = self.config_file["training"]["use_cuda"]
         self.max_iters = self.config_file["training"]["max_iters"]
         self.abstol = self.config_file["training"]["abstol"]
         self.step_size = self.config_file["training"]["step_size"]

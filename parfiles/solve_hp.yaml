@@ -1,10 +1,12 @@
+# yaml-language-server: $schema=qcnn.json
+
 computer:
   num_qubits: 4
 
 circuit:
   ansatz: "sel"
   num_layers: 2
-  #conv_layer: "FreeVatanWilliams"
+  conv_layer: "FreeVatanWilliams"
 
 dataset:
   dataset_size: 40
@@ -12,6 +14,7 @@ dataset:
 
 training:
   optimizer: "numpy"
+  use_cuda: false
   max_iters: 2
   abstol: 1.0e-5
   step_size: 1.0e-4

@@ -1,0 +1,136 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "qcnn-schema",
+    "title": "QCNN Parameters",
+    "description": "A recipe for parameter files driving QCNN.",
+
+    "properties": {
+        "computer": {
+            "description": "Quantum computer characteristics.",
+            "properties": {
+                "num_qubits": {
+                    "description": "The number of qubits to use.",
+                    "type": "integer"
+                }
+            },
+            "required": ["num_qubits"]
+        },
+
+        "circuit": {
+            "description": "Describes the quantum circuit configuration.",
+            "properties": {
+                "ansatz": {
+                    "description": "The ansatz circuit to use.",
+                    "type":"string",
+                    "enum": ["sel", "conv"]
+                },
+                
+                "num_layers": {
+                    "description": "The number of layers to use (if ansatz is \"sel\")",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                
+                "conv_layer": {
+                    "description": "The convolutional layer to use (if anstaz is \"conv\")",
+                    "type": "string"
+                }
+            },
+            "required": ["ansatz"]
+        },
+        
+        "dataset": {
+            "description": "Input dataset configuration.",
+            "properties": {
+                "dataset_size": {
+                    "description": "The size of the input dataset",
+                    "type": "integer",
+                    "minimum": 2
+                },
+                "batch_size":{
+                    "description": "The size of the training batch to use. 0 disables batching.",
+                    "type": "integer",
+                    "minimum": 0
+                }
+            },
+            "required": ["dataset_size", "batch_size"]
+        },
+        
+        "training": {
+            "description": "Training and optimization options",
+            "properties": {
+                "optimizer": {
+                    "description": "The optimizer backend to use",
+                    "type": "string",
+                    "enum": ["numpy", "torch"]
+                },
+                
+                "use_cuda" : {
+                    "description": "Wether or not to use CUDA, if available. Only relevant if \"optimizer\" is \"torch\"",
+                    "type": "boolean"
+                },
+                
+                "max_iters": {
+                    "description": "The maximum number of optimizer steps to take.",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                
+                "abstol" : {
+                    "description": "The value of the error function below which the optimizer will stop iterating",
+                    "type": "number",
+                    "minimum": 0.0
+                },
+                
+                "step_size" : {
+                    "description": "The initial step size of the optimizer.",
+                    "type": "number",
+                    "minimum": 0.0
+                }
+            },
+            "required": ["optimizer", "use_cuda", "max_iters", "abstol", "step_size"]
+        },
+        
+        "domain": {
+            "description": "Input domain settings.",
+            "properties": {
+                "x0" : {
+                    "description": "Left boundary of the domain.",
+                    "type": "number"
+                },
+                "xf" : {
+                    "description": "Right boundary of the domain",
+                    "type:": "number"
+                }
+            },
+            "required": ["x0", "xf"]
+        },
+
+        "problem": {
+            "description": "The type of problem to solve and its parameters",
+            "properties": {
+                "type": {
+                    "description": "The type of problem to solve",
+                    "type": "string",
+                    "enum": ["fit", "plane-hagen-poiseuille"]
+                },
+                "params":{
+                    "description": "Required problem parameters. Problem dependent.",
+                    "type": "object"
+                }
+            },
+            "required": ["type"]
+        },
+        
+        "output": {
+            "description": "Training output settings",
+            "properties": {
+                "folder_name": {
+                    "description": "The folder where to save training data.",
+                    "type": "string"
+                }
+            }
+        }
+    }
+  }
+  

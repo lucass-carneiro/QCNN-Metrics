@@ -47,11 +47,20 @@ def torch_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, pa
     # Recovery
     if out.recovered:
         first_iter = out.first_iter
-        weights = torch.tensor(out.weights, requires_grad=True, device="cuda")
+        if config.use_cuda:
+            weights = torch.tensor(
+                out.weights, requires_grad=True, device="cuda")
+        else:
+            weights = torch.tensor(
+                out.weights, requires_grad=True, device="cpu")
     else:
         first_iter = 0
-        weights = torch.tensor(
-            ansatz.weights, requires_grad=True, device="cuda")
+        if config.use_cuda:
+            weights = torch.tensor(
+                ansatz.weights, requires_grad=True, device="cuda")
+        else:
+            weights = torch.tensor(
+                ansatz.weights, requires_grad=True, device="cpu")
 
     last_iter = first_iter + params.max_iters
 
@@ -77,7 +86,11 @@ def torch_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, pa
 
     stopping_criteria = "max iterations reached"
 
-    data = torch.tensor(data_in, requires_grad=False, device="cuda")
+    if config.use_cuda:
+        data = torch.tensor(data_in, requires_grad=False, device="cuda")
+    else:
+        data = torch.tensor(data_in, requires_grad=False, device="cpu")
+
     N_data = len(data)
 
     # Optimization loop
@@ -90,8 +103,13 @@ def torch_optimize(out: out.Output, ansatz: ans.Ansatz, problem: prb.Problem, pa
                 endpoint=True
             )
 
-            batch_data = torch.tensor(
-                data[batch_indices], requires_grad=False, device="cuda")
+            if config.use_cuda:
+                batch_data = torch.tensor(
+                    data[batch_indices], requires_grad=False, device="cuda")
+            else:
+                batch_data = torch.tensor(
+                    data[batch_indices], requires_grad=False, device="cpu")
+
             N_batch = params.batch_size
         else:
             batch_data = data
