@@ -1,6 +1,0 @@
-Pennylane
-Numpy
-quibits
-maximmun
-Slurm
-TODO
