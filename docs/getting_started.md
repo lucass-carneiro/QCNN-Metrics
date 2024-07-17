@@ -42,3 +42,21 @@ When all operations are done exit out of the virtual environment with
 ``` bash
 deactivate
 ```
+
+# Documentation
+
+To create these documentation pages, `mkdocs` is used and is included as part of the package's `requirements.txt` files.
+
+To update the `gh-pages` site, simply activate the virtual environment and issue
+
+```bash
+mkdocs gh-deploy
+```
+
+To preview the documentation, you can issue
+
+```bash
+mkdocs serve
+```
+
+This will return a local IP address that you can copy and paste in your internet browser in order to view a preview of the deployed documentation site.
