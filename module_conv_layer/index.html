@@ -1,0 +1,2444 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="auto">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>conv_layer - QCNN Toolkit Documentation</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../css/brands.min.css" rel="stylesheet">
+        <link href="../css/solid.min.css" rel="stylesheet">
+        <link href="../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" disabled>
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">QCNN Toolkit Documentation</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../getting_started/" class="nav-link">Getting started</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../parameter_files/" class="nav-link">Parameter Files</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../apptainer/" class="nav-link">Apptainer images</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">API Modules</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../module_ansatz/" class="dropdown-item">ansatz</a>
+</li>
+                                    
+<li>
+    <a href="../module_ansatzes/" class="dropdown-item">ansatzes</a>
+</li>
+                                    
+<li>
+    <a href="../module_config/" class="dropdown-item">config</a>
+</li>
+                                    
+<li>
+    <a href="./" class="dropdown-item active" aria-current="page">conv_layer</a>
+</li>
+                                    
+<li>
+    <a href="../module_domain_map/" class="dropdown-item">domain_map</a>
+</li>
+                                    
+<li>
+    <a href="../module_draw_and_plot/" class="dropdown-item">draw_and_plot</a>
+</li>
+                                    
+<li>
+    <a href="../module_function_fitting/" class="dropdown-item">function_fitting</a>
+</li>
+                                    
+<li>
+    <a href="../module_hagen_poiseuille/" class="dropdown-item">hagen_poiseuille</a>
+</li>
+                                    
+<li>
+    <a href="../module_hp_params/" class="dropdown-item">hp_params</a>
+</li>
+                                    
+<li>
+    <a href="../module_optimize/" class="dropdown-item">optimize</a>
+</li>
+                                    
+<li>
+    <a href="../module_optimizer_params/" class="dropdown-item">optimizer_params</a>
+</li>
+                                    
+<li>
+    <a href="../module_output/" class="dropdown-item">output</a>
+</li>
+                                    
+<li>
+    <a href="../module_problem/" class="dropdown-item">problem</a>
+</li>
+                                    
+<li>
+    <a href="../module_quantum_derivatives/" class="dropdown-item">quantum_derivatives</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../module_config/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../module_domain_map/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item dropdown">
+                              <button id="theme-menu" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme" class="nav-link dropdown-toggle">
+                                <i class="fa-solid fa-circle-half-stroke fa-fw"></i>
+                                <span class="d-lg-none ms-2">Toggle theme</span>
+                              </button>
+                              <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                  <button class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+                                    <i class="fa-solid fa-sun fa-fw"></i>
+                                    <span class="ms-2">Light</span>
+                                    <i class="fa-solid fa-check ms-auto d-none"></i>
+                                  </button>
+                                </li>
+                                <li>
+                                  <button class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+                                    <i class="fa-solid fa-moon fa-fw"></i>
+                                    <span class="ms-2">Dark</span>
+                                    <i class="fa-solid fa-check ms-auto d-none"></i>
+                                  </button>
+                                </li>
+                                <li>
+                                  <button class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">
+                                    <i class="fa-solid fa-circle-half-stroke fa-fw"></i>
+                                    <span class="ms-2">Auto</span>
+                                    <i class="fa-solid fa-check ms-auto"></i>
+                                  </button>
+                                </li>
+                              </ul>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <script src="../js/darkmode.js"></script>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#module-conv_layer" class="nav-link">Module conv_layer</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers" class="nav-link">conv_layers</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers.FreeVatanWilliams" class="nav-link">FreeVatanWilliams</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers.HurKimPark1" class="nav-link">HurKimPark1</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers.HurKimPark2" class="nav-link">HurKimPark2</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers.HurKimPark3" class="nav-link">HurKimPark3</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers.HurKimPark4" class="nav-link">HurKimPark4</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers.HurKimPark5" class="nav-link">HurKimPark5</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers.HurKimPark6" class="nav-link">HurKimPark6</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers.HurKimPark7" class="nav-link">HurKimPark7</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers.HurKimPark8" class="nav-link">HurKimPark8</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers.HurKimPark9" class="nav-link">HurKimPark9</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#conv_layers.VatanWilliams" class="nav-link">VatanWilliams</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="module-conv_layer">Module <code>conv_layer</code></h1>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="conv_layers"></a>
+    <div class="doc doc-contents first">
+
+      <p>Contains all convolutional layer circuits that can be used for training.</p>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="conv_layers.FreeVatanWilliams" class="doc doc-heading">
+            <code>FreeVatanWilliams</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Convolutional layer defined in https://arxiv.org/pdf/quant-ph/0308006.pdf.
+Modified so taht all roations are free trainable parameters.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.FreeVatanWilliams.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the convolutional layer ("Free Vatan - Williams").</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.FreeVatanWilliams.ppb">ppb</span></code></td>
+            <td>
+                  <code>int</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The number of trainable parameters per convolutional block (5).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+              <details class="quote">
+                <summary>Source code in <code>src/conv_layers.py</code></summary>
+                <pre class="highlight"><code class="language-python">@dataclass
+class FreeVatanWilliams:
+    """
+    Convolutional layer defined in https://arxiv.org/pdf/quant-ph/0308006.pdf.
+    Modified so taht all roations are free trainable parameters.
+
+    Attributes:
+      name (str): The name of the convolutional layer ("Free Vatan - Williams").
+      ppb (int): The number of trainable parameters per convolutional block (5).
+    """
+
+    name: str = "Free Vatan - Williams"
+    ppb: int = 5
+
+    def layer(p, w):
+        """
+        Circuit defining the convolutional layer.
+
+        Parameters:
+          p (array): List of values for the trainable parameters of the circuit.
+          w (array): List of qubit indices where the circuit is to be applied to.
+        """
+        qml.RZ(p[0], wires=w[1])
+        qml.CNOT(wires=[w[1], w[0]])
+        qml.RZ(p[1], wires=w[0])
+        qml.RY(p[2], wires=w[1])
+        qml.CNOT(wires=[w[0], w[1]])
+        qml.RY(p[3], wires=w[1])
+        qml.CNOT(wires=[w[1], w[0]])
+        qml.RZ(p[4], wires=w[0])</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="conv_layers.FreeVatanWilliams.layer" class="doc doc-heading">
+            <code class="highlight language-python">layer(p, w)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Circuit defining the convolutional layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>p</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of values for the trainable parameters of the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>w</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of qubit indices where the circuit is to be applied to.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/conv_layers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def layer(p, w):
+    """
+    Circuit defining the convolutional layer.
+
+    Parameters:
+      p (array): List of values for the trainable parameters of the circuit.
+      w (array): List of qubit indices where the circuit is to be applied to.
+    """
+    qml.RZ(p[0], wires=w[1])
+    qml.CNOT(wires=[w[1], w[0]])
+    qml.RZ(p[1], wires=w[0])
+    qml.RY(p[2], wires=w[1])
+    qml.CNOT(wires=[w[0], w[1]])
+    qml.RY(p[3], wires=w[1])
+    qml.CNOT(wires=[w[1], w[0]])
+    qml.RZ(p[4], wires=w[0])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="conv_layers.HurKimPark1" class="doc doc-heading">
+            <code>HurKimPark1</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Convolutional layer defined in https://arxiv.org/abs/2108.00661.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark1.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the convolutional layer ("Hur - Kim - Park (1)").</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark1.ppb">ppb</span></code></td>
+            <td>
+                  <code>int</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The number of trainable parameters per convolutional block (2).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+              <details class="quote">
+                <summary>Source code in <code>src/conv_layers.py</code></summary>
+                <pre class="highlight"><code class="language-python">@dataclass
+class HurKimPark1:
+    """
+    Convolutional layer defined in https://arxiv.org/abs/2108.00661.
+
+    Attributes:
+      name (str): The name of the convolutional layer ("Hur - Kim - Park (1)").
+      ppb (int): The number of trainable parameters per convolutional block (2).
+    """
+
+    name: str = "Hur - Kim - Park (1)"
+    ppb: int = 2
+
+    def layer(p, w):
+        """
+        Circuit defining the convolutional layer.
+
+        Parameters:
+          p (array): List of values for the trainable parameters of the circuit.
+          w (array): List of qubit indices where the circuit is to be applied to.
+        """
+        qml.RY(p[0], wires=w[0])
+        qml.RY(p[1], wires=w[1])
+        qml.CNOT(wires=[w[0], w[1]])</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="conv_layers.HurKimPark1.layer" class="doc doc-heading">
+            <code class="highlight language-python">layer(p, w)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Circuit defining the convolutional layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>p</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of values for the trainable parameters of the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>w</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of qubit indices where the circuit is to be applied to.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/conv_layers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def layer(p, w):
+    """
+    Circuit defining the convolutional layer.
+
+    Parameters:
+      p (array): List of values for the trainable parameters of the circuit.
+      w (array): List of qubit indices where the circuit is to be applied to.
+    """
+    qml.RY(p[0], wires=w[0])
+    qml.RY(p[1], wires=w[1])
+    qml.CNOT(wires=[w[0], w[1]])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="conv_layers.HurKimPark2" class="doc doc-heading">
+            <code>HurKimPark2</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Convolutional layer defined in https://arxiv.org/abs/2108.00661.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark2.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the convolutional layer ("Hur - Kim - Park (2)").</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark2.ppb">ppb</span></code></td>
+            <td>
+                  <code>int</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The number of trainable parameters per convolutional block (2).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+              <details class="quote">
+                <summary>Source code in <code>src/conv_layers.py</code></summary>
+                <pre class="highlight"><code class="language-python">@dataclass
+class HurKimPark2:
+    """
+    Convolutional layer defined in https://arxiv.org/abs/2108.00661.
+
+    Attributes:
+      name (str): The name of the convolutional layer ("Hur - Kim - Park (2)").
+      ppb (int): The number of trainable parameters per convolutional block (2).
+    """
+
+    name: str = "Hur - Kim - Park (2)"
+    ppb: int = 2
+
+    def layer(p, w):
+        """
+        Circuit defining the convolutional layer.
+
+        Parameters:
+          p (array): List of values for the trainable parameters of the circuit.
+          w (array): List of qubit indices where the circuit is to be applied to.
+        """
+        qml.Hadamard(wires=w[0])
+        qml.Hadamard(wires=w[1])
+        qml.CZ(wires=[w[0], w[1]])
+        qml.RX(p[0], wires=w[0])
+        qml.RX(p[1], wires=w[1])</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="conv_layers.HurKimPark2.layer" class="doc doc-heading">
+            <code class="highlight language-python">layer(p, w)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Circuit defining the convolutional layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>p</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of values for the trainable parameters of the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>w</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of qubit indices where the circuit is to be applied to.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/conv_layers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def layer(p, w):
+    """
+    Circuit defining the convolutional layer.
+
+    Parameters:
+      p (array): List of values for the trainable parameters of the circuit.
+      w (array): List of qubit indices where the circuit is to be applied to.
+    """
+    qml.Hadamard(wires=w[0])
+    qml.Hadamard(wires=w[1])
+    qml.CZ(wires=[w[0], w[1]])
+    qml.RX(p[0], wires=w[0])
+    qml.RX(p[1], wires=w[1])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="conv_layers.HurKimPark3" class="doc doc-heading">
+            <code>HurKimPark3</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Convolutional layer defined in https://arxiv.org/abs/2108.00661.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark3.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the convolutional layer ("Hur - Kim - Park (3)").</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark3.ppb">ppb</span></code></td>
+            <td>
+                  <code>int</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The number of trainable parameters per convolutional block (4).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+              <details class="quote">
+                <summary>Source code in <code>src/conv_layers.py</code></summary>
+                <pre class="highlight"><code class="language-python">@dataclass
+class HurKimPark3:
+    """
+    Convolutional layer defined in https://arxiv.org/abs/2108.00661.
+
+    Attributes:
+      name (str): The name of the convolutional layer ("Hur - Kim - Park (3)").
+      ppb (int): The number of trainable parameters per convolutional block (4).
+    """
+
+    name: str = "Hur - Kim - Park (3)"
+    ppb: int = 4
+
+    def layer(p, w):
+        """
+        Circuit defining the convolutional layer.
+
+        Parameters:
+          p (array): List of values for the trainable parameters of the circuit.
+          w (array): List of qubit indices where the circuit is to be applied to.
+        """
+        qml.RY(p[0], wires=w[0])
+        qml.RY(p[1], wires=w[1])
+        qml.CNOT(wires=[w[1], w[0]])
+        qml.RY(p[2], wires=w[0])
+        qml.RY(p[3], wires=w[1])
+        qml.CNOT(wires=[w[0], w[1]])</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="conv_layers.HurKimPark3.layer" class="doc doc-heading">
+            <code class="highlight language-python">layer(p, w)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Circuit defining the convolutional layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>p</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of values for the trainable parameters of the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>w</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of qubit indices where the circuit is to be applied to.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/conv_layers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def layer(p, w):
+    """
+    Circuit defining the convolutional layer.
+
+    Parameters:
+      p (array): List of values for the trainable parameters of the circuit.
+      w (array): List of qubit indices where the circuit is to be applied to.
+    """
+    qml.RY(p[0], wires=w[0])
+    qml.RY(p[1], wires=w[1])
+    qml.CNOT(wires=[w[1], w[0]])
+    qml.RY(p[2], wires=w[0])
+    qml.RY(p[3], wires=w[1])
+    qml.CNOT(wires=[w[0], w[1]])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="conv_layers.HurKimPark4" class="doc doc-heading">
+            <code>HurKimPark4</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Convolutional layer defined in https://arxiv.org/abs/2108.00661.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark4.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the convolutional layer ("Hur - Kim - Park (4)").</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark4.ppb">ppb</span></code></td>
+            <td>
+                  <code>int</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The number of trainable parameters per convolutional block (6).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+              <details class="quote">
+                <summary>Source code in <code>src/conv_layers.py</code></summary>
+                <pre class="highlight"><code class="language-python">@dataclass
+class HurKimPark4:
+    """
+    Convolutional layer defined in https://arxiv.org/abs/2108.00661.
+
+    Attributes:
+      name (str): The name of the convolutional layer ("Hur - Kim - Park (4)").
+      ppb (int): The number of trainable parameters per convolutional block (6).
+    """
+
+    name: str = "Hur - Kim - Park (4)"
+    ppb: int = 6
+
+    def layer(p, w):
+        """
+        Circuit defining the convolutional layer.
+
+        Parameters:
+          p (array): List of values for the trainable parameters of the circuit.
+          w (array): List of qubit indices where the circuit is to be applied to.
+        """
+        qml.RY(p[0], wires=w[0])
+        qml.RY(p[1], wires=w[1])
+        qml.CRZ(p[2], wires=[w[1], w[0]])
+        qml.RY(p[3], wires=w[0])
+        qml.RY(p[4], wires=w[1])
+        qml.CRZ(p[5], wires=[w[0], w[1]])</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="conv_layers.HurKimPark4.layer" class="doc doc-heading">
+            <code class="highlight language-python">layer(p, w)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Circuit defining the convolutional layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>p</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of values for the trainable parameters of the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>w</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of qubit indices where the circuit is to be applied to.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/conv_layers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def layer(p, w):
+    """
+    Circuit defining the convolutional layer.
+
+    Parameters:
+      p (array): List of values for the trainable parameters of the circuit.
+      w (array): List of qubit indices where the circuit is to be applied to.
+    """
+    qml.RY(p[0], wires=w[0])
+    qml.RY(p[1], wires=w[1])
+    qml.CRZ(p[2], wires=[w[1], w[0]])
+    qml.RY(p[3], wires=w[0])
+    qml.RY(p[4], wires=w[1])
+    qml.CRZ(p[5], wires=[w[0], w[1]])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="conv_layers.HurKimPark5" class="doc doc-heading">
+            <code>HurKimPark5</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Convolutional layer defined in https://arxiv.org/abs/2108.00661.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark5.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the convolutional layer ("Hur - Kim - Park (5)").</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark5.ppb">ppb</span></code></td>
+            <td>
+                  <code>int</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The number of trainable parameters per convolutional block (6).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+              <details class="quote">
+                <summary>Source code in <code>src/conv_layers.py</code></summary>
+                <pre class="highlight"><code class="language-python">@dataclass
+class HurKimPark5:
+    """
+    Convolutional layer defined in https://arxiv.org/abs/2108.00661.
+
+    Attributes:
+      name (str): The name of the convolutional layer ("Hur - Kim - Park (5)").
+      ppb (int): The number of trainable parameters per convolutional block (6).
+    """
+
+    name: str = "Hur - Kim - Park (5)"
+    ppb: int = 6
+
+    def layer(p, w):
+        """
+        Circuit defining the convolutional layer.
+
+        Parameters:
+          p (array): List of values for the trainable parameters of the circuit.
+          w (array): List of qubit indices where the circuit is to be applied to.
+        """
+        qml.RY(p[0], wires=w[0])
+        qml.RY(p[1], wires=w[1])
+        qml.CRX(p[2], wires=[w[1], w[0]])
+        qml.RY(p[3], wires=w[0])
+        qml.RY(p[4], wires=w[1])
+        qml.CRX(p[5], wires=[w[0], w[1]])</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="conv_layers.HurKimPark5.layer" class="doc doc-heading">
+            <code class="highlight language-python">layer(p, w)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Circuit defining the convolutional layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>p</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of values for the trainable parameters of the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>w</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of qubit indices where the circuit is to be applied to.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/conv_layers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def layer(p, w):
+    """
+    Circuit defining the convolutional layer.
+
+    Parameters:
+      p (array): List of values for the trainable parameters of the circuit.
+      w (array): List of qubit indices where the circuit is to be applied to.
+    """
+    qml.RY(p[0], wires=w[0])
+    qml.RY(p[1], wires=w[1])
+    qml.CRX(p[2], wires=[w[1], w[0]])
+    qml.RY(p[3], wires=w[0])
+    qml.RY(p[4], wires=w[1])
+    qml.CRX(p[5], wires=[w[0], w[1]])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="conv_layers.HurKimPark6" class="doc doc-heading">
+            <code>HurKimPark6</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Convolutional layer defined in https://arxiv.org/abs/2108.00661.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark6.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the convolutional layer ("Hur - Kim - Park (6)").</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark6.ppb">ppb</span></code></td>
+            <td>
+                  <code>int</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The number of trainable parameters per convolutional block (6).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+              <details class="quote">
+                <summary>Source code in <code>src/conv_layers.py</code></summary>
+                <pre class="highlight"><code class="language-python">@dataclass
+class HurKimPark6:
+    """
+    Convolutional layer defined in https://arxiv.org/abs/2108.00661.
+
+    Attributes:
+      name (str): The name of the convolutional layer ("Hur - Kim - Park (6)").
+      ppb (int): The number of trainable parameters per convolutional block (6).
+    """
+
+    name: str = "Hur - Kim - Park (6)"
+    ppb: int = 6
+
+    def layer(p, w):
+        """
+        Circuit defining the convolutional layer.
+
+        Parameters:
+          p (array): List of values for the trainable parameters of the circuit.
+          w (array): List of qubit indices where the circuit is to be applied to.
+        """
+        qml.RY(p[0], wires=w[0])
+        qml.RY(p[1], wires=w[1])
+        qml.CNOT(wires=[w[0], w[1]])
+        qml.RY(p[2], wires=w[0])
+        qml.RY(p[3], wires=w[1])
+        qml.CNOT(wires=[w[0], w[1]])
+        qml.RY(p[4], wires=w[0])
+        qml.RY(p[5], wires=w[1])</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="conv_layers.HurKimPark6.layer" class="doc doc-heading">
+            <code class="highlight language-python">layer(p, w)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Circuit defining the convolutional layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>p</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of values for the trainable parameters of the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>w</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of qubit indices where the circuit is to be applied to.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/conv_layers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def layer(p, w):
+    """
+    Circuit defining the convolutional layer.
+
+    Parameters:
+      p (array): List of values for the trainable parameters of the circuit.
+      w (array): List of qubit indices where the circuit is to be applied to.
+    """
+    qml.RY(p[0], wires=w[0])
+    qml.RY(p[1], wires=w[1])
+    qml.CNOT(wires=[w[0], w[1]])
+    qml.RY(p[2], wires=w[0])
+    qml.RY(p[3], wires=w[1])
+    qml.CNOT(wires=[w[0], w[1]])
+    qml.RY(p[4], wires=w[0])
+    qml.RY(p[5], wires=w[1])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="conv_layers.HurKimPark7" class="doc doc-heading">
+            <code>HurKimPark7</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Convolutional layer defined in https://arxiv.org/abs/2108.00661.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark7.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the convolutional layer ("Hur - Kim - Park (7)").</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark7.ppb">ppb</span></code></td>
+            <td>
+                  <code>int</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The number of trainable parameters per convolutional block (10).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+              <details class="quote">
+                <summary>Source code in <code>src/conv_layers.py</code></summary>
+                <pre class="highlight"><code class="language-python">@dataclass
+class HurKimPark7:
+    """
+    Convolutional layer defined in https://arxiv.org/abs/2108.00661.
+
+    Attributes:
+      name (str): The name of the convolutional layer ("Hur - Kim - Park (7)").
+      ppb (int): The number of trainable parameters per convolutional block (10).
+    """
+
+    name: str = "Hur - Kim - Park (7)"
+    ppb: int = 10
+
+    def layer(p, w):
+        """
+        Circuit defining the convolutional layer.
+
+        Parameters:
+          p (array): List of values for the trainable parameters of the circuit.
+          w (array): List of qubit indices where the circuit is to be applied to.
+        """
+        qml.RX(p[0], wires=w[0])
+        qml.RX(p[1], wires=w[1])
+        qml.RZ(p[2], wires=w[0])
+        qml.RZ(p[3], wires=w[1])
+        qml.CRZ(p[4], wires=[w[1], w[0]])
+        qml.CRZ(p[5], wires=[w[0], w[1]])
+        qml.RX(p[6], wires=w[0])
+        qml.RX(p[7], wires=w[1])
+        qml.RZ(p[8], wires=w[0])
+        qml.RZ(p[9], wires=w[1])</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="conv_layers.HurKimPark7.layer" class="doc doc-heading">
+            <code class="highlight language-python">layer(p, w)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Circuit defining the convolutional layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>p</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of values for the trainable parameters of the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>w</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of qubit indices where the circuit is to be applied to.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/conv_layers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def layer(p, w):
+    """
+    Circuit defining the convolutional layer.
+
+    Parameters:
+      p (array): List of values for the trainable parameters of the circuit.
+      w (array): List of qubit indices where the circuit is to be applied to.
+    """
+    qml.RX(p[0], wires=w[0])
+    qml.RX(p[1], wires=w[1])
+    qml.RZ(p[2], wires=w[0])
+    qml.RZ(p[3], wires=w[1])
+    qml.CRZ(p[4], wires=[w[1], w[0]])
+    qml.CRZ(p[5], wires=[w[0], w[1]])
+    qml.RX(p[6], wires=w[0])
+    qml.RX(p[7], wires=w[1])
+    qml.RZ(p[8], wires=w[0])
+    qml.RZ(p[9], wires=w[1])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="conv_layers.HurKimPark8" class="doc doc-heading">
+            <code>HurKimPark8</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Convolutional layer defined in https://arxiv.org/abs/2108.00661.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark8.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the convolutional layer ("Hur - Kim - Park (8)").</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark8.ppb">ppb</span></code></td>
+            <td>
+                  <code>int</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The number of trainable parameters per convolutional block (10).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+              <details class="quote">
+                <summary>Source code in <code>src/conv_layers.py</code></summary>
+                <pre class="highlight"><code class="language-python">@dataclass
+class HurKimPark8:
+    """
+    Convolutional layer defined in https://arxiv.org/abs/2108.00661.
+
+    Attributes:
+      name (str): The name of the convolutional layer ("Hur - Kim - Park (8)").
+      ppb (int): The number of trainable parameters per convolutional block (10).
+    """
+
+    name: str = "Hur - Kim - Park (8)"
+    ppb: int = 10
+
+    def layer(p, w):
+        """
+        Circuit defining the convolutional layer.
+
+        Parameters:
+          p (array): List of values for the trainable parameters of the circuit.
+          w (array): List of qubit indices where the circuit is to be applied to.
+        """
+        qml.RX(p[0], wires=w[0])
+        qml.RX(p[1], wires=w[1])
+        qml.RZ(p[2], wires=w[0])
+        qml.RZ(p[3], wires=w[1])
+        qml.CRX(p[4], wires=[w[1], w[0]])
+        qml.CRX(p[5], wires=[w[0], w[1]])
+        qml.RX(p[6], wires=w[0])
+        qml.RX(p[7], wires=w[1])
+        qml.RZ(p[8], wires=w[0])
+        qml.RZ(p[9], wires=w[1])</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="conv_layers.HurKimPark8.layer" class="doc doc-heading">
+            <code class="highlight language-python">layer(p, w)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Circuit defining the convolutional layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>p</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of values for the trainable parameters of the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>w</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of qubit indices where the circuit is to be applied to.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/conv_layers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def layer(p, w):
+    """
+    Circuit defining the convolutional layer.
+
+    Parameters:
+      p (array): List of values for the trainable parameters of the circuit.
+      w (array): List of qubit indices where the circuit is to be applied to.
+    """
+    qml.RX(p[0], wires=w[0])
+    qml.RX(p[1], wires=w[1])
+    qml.RZ(p[2], wires=w[0])
+    qml.RZ(p[3], wires=w[1])
+    qml.CRX(p[4], wires=[w[1], w[0]])
+    qml.CRX(p[5], wires=[w[0], w[1]])
+    qml.RX(p[6], wires=w[0])
+    qml.RX(p[7], wires=w[1])
+    qml.RZ(p[8], wires=w[0])
+    qml.RZ(p[9], wires=w[1])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="conv_layers.HurKimPark9" class="doc doc-heading">
+            <code>HurKimPark9</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Convolutional layer defined in https://arxiv.org/abs/2108.00661.</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark9.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the convolutional layer ("Hur - Kim - Park (9)").</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.HurKimPark9.ppb">ppb</span></code></td>
+            <td>
+                  <code>int</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The number of trainable parameters per convolutional block (15).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+              <details class="quote">
+                <summary>Source code in <code>src/conv_layers.py</code></summary>
+                <pre class="highlight"><code class="language-python">@dataclass
+class HurKimPark9:
+    """
+    Convolutional layer defined in https://arxiv.org/abs/2108.00661.
+
+    Attributes:
+      name (str): The name of the convolutional layer ("Hur - Kim - Park (9)").
+      ppb (int): The number of trainable parameters per convolutional block (15).
+    """
+
+    name: str = "Hur - Kim - Park (9)"
+    ppb: int = 15
+
+    def layer(p, w):
+        """
+        Circuit defining the convolutional layer.
+
+        Parameters:
+          p (array): List of values for the trainable parameters of the circuit.
+          w (array): List of qubit indices where the circuit is to be applied to.
+        """
+        # U30
+        qml.RZ(p[0], wires=w[0])
+        qml.RX(-np.pi/2, wires=w[0])
+        qml.RZ(p[1], wires=w[0])
+        qml.RX(np.pi/2, wires=w[0])
+        qml.RZ(p[2], wires=w[0])
+
+        # U31
+        qml.RZ(p[3], wires=w[1])
+        qml.RX(-np.pi/2, wires=w[1])
+        qml.RZ(p[4], wires=w[1])
+        qml.RX(np.pi/2, wires=w[1])
+        qml.RZ(p[5], wires=w[1])
+
+        qml.CNOT(wires=[w[0], w[1]])
+        qml.RY(p[6], wires=w[0])
+        qml.RZ(p[7], wires=w[1])
+        qml.CNOT(wires=[w[1], w[0]])
+        qml.RY(p[8], wires=w[0])
+        qml.CNOT(wires=[w[0], w[1]])
+
+        # U30
+        qml.RZ(p[9], wires=w[0])
+        qml.RX(-np.pi/2, wires=w[0])
+        qml.RZ(p[10], wires=w[0])
+        qml.RX(np.pi/2, wires=w[0])
+        qml.RZ(p[11], wires=w[0])
+
+        # U31
+        qml.RZ(p[12], wires=w[1])
+        qml.RX(-np.pi/2, wires=w[1])
+        qml.RZ(p[13], wires=w[1])
+        qml.RX(np.pi/2, wires=w[1])
+        qml.RZ(p[14], wires=w[1])</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="conv_layers.HurKimPark9.layer" class="doc doc-heading">
+            <code class="highlight language-python">layer(p, w)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Circuit defining the convolutional layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>p</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of values for the trainable parameters of the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>w</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of qubit indices where the circuit is to be applied to.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/conv_layers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def layer(p, w):
+    """
+    Circuit defining the convolutional layer.
+
+    Parameters:
+      p (array): List of values for the trainable parameters of the circuit.
+      w (array): List of qubit indices where the circuit is to be applied to.
+    """
+    # U30
+    qml.RZ(p[0], wires=w[0])
+    qml.RX(-np.pi/2, wires=w[0])
+    qml.RZ(p[1], wires=w[0])
+    qml.RX(np.pi/2, wires=w[0])
+    qml.RZ(p[2], wires=w[0])
+
+    # U31
+    qml.RZ(p[3], wires=w[1])
+    qml.RX(-np.pi/2, wires=w[1])
+    qml.RZ(p[4], wires=w[1])
+    qml.RX(np.pi/2, wires=w[1])
+    qml.RZ(p[5], wires=w[1])
+
+    qml.CNOT(wires=[w[0], w[1]])
+    qml.RY(p[6], wires=w[0])
+    qml.RZ(p[7], wires=w[1])
+    qml.CNOT(wires=[w[1], w[0]])
+    qml.RY(p[8], wires=w[0])
+    qml.CNOT(wires=[w[0], w[1]])
+
+    # U30
+    qml.RZ(p[9], wires=w[0])
+    qml.RX(-np.pi/2, wires=w[0])
+    qml.RZ(p[10], wires=w[0])
+    qml.RX(np.pi/2, wires=w[0])
+    qml.RZ(p[11], wires=w[0])
+
+    # U31
+    qml.RZ(p[12], wires=w[1])
+    qml.RX(-np.pi/2, wires=w[1])
+    qml.RZ(p[13], wires=w[1])
+    qml.RX(np.pi/2, wires=w[1])
+    qml.RZ(p[14], wires=w[1])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="conv_layers.VatanWilliams" class="doc doc-heading">
+            <code>VatanWilliams</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+
+      <p>Convolutional layer defined in https://arxiv.org/pdf/quant-ph/0308006.pdf</p>
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.VatanWilliams.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the convolutional layer ("Vatan - Williams").</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="conv_layers.VatanWilliams.ppb">ppb</span></code></td>
+            <td>
+                  <code>int</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The number of trainable parameters per convolutional block (3).</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+              <details class="quote">
+                <summary>Source code in <code>src/conv_layers.py</code></summary>
+                <pre class="highlight"><code class="language-python">@dataclass
+class VatanWilliams:
+    """
+    Convolutional layer defined in https://arxiv.org/pdf/quant-ph/0308006.pdf
+
+    Attributes:
+      name (str): The name of the convolutional layer ("Vatan - Williams").
+      ppb (int): The number of trainable parameters per convolutional block (3).
+    """
+
+    name: str = "Vatan - Williams"
+    ppb: int = 3
+
+    def layer(p, w):
+        """
+        Circuit defining the convolutional layer.
+
+        Parameters:
+          p (array): List of values for the trainable parameters of the circuit.
+          w (array): List of qubit indices where the circuit is to be applied to.
+        """
+        qml.RZ(np.pi / 2, wires=w[1])
+        qml.CNOT(wires=[w[1], w[0]])
+        qml.RZ(p[0], wires=w[0])
+        qml.RY(p[1], wires=w[1])
+        qml.CNOT(wires=[w[0], w[1]])
+        qml.RY(p[2], wires=w[1])
+        qml.CNOT(wires=[w[1], w[0]])
+        qml.RZ(-np.pi / 2, wires=w[0])</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="conv_layers.VatanWilliams.layer" class="doc doc-heading">
+            <code class="highlight language-python">layer(p, w)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Circuit defining the convolutional layer.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>p</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of values for the trainable parameters of the circuit.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>w</code></td>
+            <td>
+                  <code>array</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of qubit indices where the circuit is to be applied to.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>src/conv_layers.py</code></summary>
+              <pre class="highlight"><code class="language-python">def layer(p, w):
+    """
+    Circuit defining the convolutional layer.
+
+    Parameters:
+      p (array): List of values for the trainable parameters of the circuit.
+      w (array): List of qubit indices where the circuit is to be applied to.
+    """
+    qml.RZ(np.pi / 2, wires=w[1])
+    qml.CNOT(wires=[w[1], w[0]])
+    qml.RZ(p[0], wires=w[0])
+    qml.RY(p[1], wires=w[1])
+    qml.CNOT(wires=[w[0], w[1]])
+    qml.RY(p[2], wires=w[1])
+    qml.CNOT(wires=[w[1], w[0]])
+    qml.RZ(-np.pi / 2, wires=w[0])</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js"></script>
+        <script src="../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
