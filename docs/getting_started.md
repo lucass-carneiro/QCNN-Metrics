@@ -1,4 +1,4 @@
-# Introduction
+# Getting started with QCNN-Metrics
 
 The main interaction point of this package is the `qcnn.py` script, provided in the `src` folder of this repository.
 
@@ -41,47 +41,4 @@ When all operations are done exit out of the virtual environment with
 
 ``` bash
 deactivate
-```
-
-## Parameter files
-
-The operations of `qcnn.py` are controlled via TOML parameter files. Examples of such files can be found in the `parfiles` folder of `QCNN-Metrics`. Bellow is a description of each tunable parameter
-
-| Key | Description | Possible Values |
-|:---:|:-----------:|:---------------:|
-|`computer/num_qubits`|The number of quibits to use in the circuit| Positive integers
-|`circuit/ansatz`| The type of convolutional ansatz to use| `"conv"` for convolutional circuits or `"sel"` for strongly entangling layers.
-|`circuit/num_layers`|The number of convolutional layers. Only used if `circuit/ansatz = "sel"`| Positive integers
-|`circuit/conv_layer`|The type of convolutional layer to use. Only used if `circuit/ansatz = "conv"`|See `src/conv_layers.py` for possible convolutional layers
-|`dataset/dataset_size`|The number of points in the training dataset.|Positive integers
-|`dataset/batch_size`|The size of the training batch. If zero, batching is disabled.| Integers
-|`training/optimizer`|The provider of the optimization algorithms.|`"numpy"` for Numpy or `"torch"` for Torch
-|`training/max_iters`|The maximmun number of training steps to take before exiting.| Integers
-|`training/abstol`| This parameter governs the value of the loss function below which the training stops.|Positive reals
-|`training/stepsize`| The initial optimization step size| Positive real.
-|`domain/x0`|The leftmost point in the domain|Real
-|`domain/xf`|The rightmost point in the domain|Real
-|`problem/problem_type`|The type of problem to solve with the QCNN|`"fit"`, `"hagen-poiseuille"`|
-|`output/folder_name`| Absolute path of the output folder of the training data| String|
-
-# Running on clusters
-
-When running in an HPC cluster, users often don't have access to administrative rights. This can cause issues if the system-wide version of python is too old or if the cluster does not have `pip` enabled. To avoid such problems, `QCNN-Metrics` provides a recipe for building a Singularity image in the `sing` folder, together with a Slurm script and a bash script that takes care of job submission and virtual environment activation on a cluster. Note that the cluster must have Singularity installed for this to work.
-
-## Building the image
-
-In a machine where you have root access (this is mandatory), from inside the `QCNN-Metrics` folder issue
-
-```bash
-sudo singularity build qcnn.simg singularity/qcnn.recipe
-```
-
-After the image is built, copy it over to the cluster where you will be running the code.
-
-## Submitting the job
-
-TODO: This section needs more detail
-
-```bash
-sbatch --job-name=fit_0 job.slurm /home/lucas.t/qcnn.simg /home/lucas.t/fit.toml /home/lucas.t/QCNN-Metrics
 ```

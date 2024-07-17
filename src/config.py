@@ -9,7 +9,7 @@ import yaml
 
 class ConfigData:
     """
-    Read and process configurations from the `config.toml` file.
+    Read and process configurations from a `.yaml` file.
     These files are used to drive the training, selecting which type
     of training to do and how to do it.
     """
@@ -19,10 +19,10 @@ class ConfigData:
         Initialize the object.
 
         Parameters:
-          config_file_path (str): String with the path to a TOML configuration file.
+          config_file_path (str): String with the path to a YAML configuration file.
 
         Attributes:
-          config_file (dict[str, Any]): The loaded TOML configuration file as a dictionary of options.
+          config_file (dict[str, Any]): The loaded YAML configuration file as a dictionary of options.
 
           num_qubits (int): The total number of qubits to use for training.
 
@@ -49,7 +49,6 @@ class ConfigData:
           hp_params: (HagenPoiseuilleParams): The parameters for the Hagen-Poiseuille problem to be solved. Only used if `problem_type = "plane-hagen-poiseuille" or "plane-hagen-poiseuille"`
         """
         with open(config_file_path, "rb") as f:
-            # self.config_file = tomllib.load(f)
             self.config_file = yaml.safe_load(f)
 
         self.num_qubits = self.config_file["computer"]["num_qubits"]
