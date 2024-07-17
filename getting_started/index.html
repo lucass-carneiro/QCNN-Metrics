@@ -188,6 +188,11 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#documentation" class="nav-link">Documentation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
         </ul>
     </div>
 </div></div>
@@ -218,7 +223,16 @@ deactivate # When done with using the environment
 </code></pre>
 <p>When all operations are done exit out of the virtual environment with</p>
 <pre><code class="language-bash">deactivate
-</code></pre></div>
+</code></pre>
+<h1 id="documentation">Documentation</h1>
+<p>To create these documentation pages, <code>mkdocs</code> is used and is included as part of the package's <code>requirements.txt</code> files.</p>
+<p>To update the <code>gh-pages</code> site, simply activate the virtual environment and issue</p>
+<pre><code class="language-bash">mkdocs gh-deploy
+</code></pre>
+<p>To preview the documentation, you can issue</p>
+<pre><code class="language-bash">mkdocs serve
+</code></pre>
+<p>This will return a local IP address that you can copy and paste in your internet browser in order to view a preview of the deployed documentation site.</p></div>
             </div>
         </div>
 
