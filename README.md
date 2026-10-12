@@ -12,3 +12,19 @@ This is a python package whose primary objective is to train Quantum Convolution
 # Using
 
 Detailed installation and usage instructions are available in the [Documentation](https://lucass-carneiro.github.io/QCNN-Metrics/)
+
+# License
+
+Copyright (C) 2023-2024 Lucas Timotheo Sanches, Fabio Pereira dos Santos
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU Affero General Public License as published by the Free
+Software Foundation, either version 3 of the License, or (at your option) any
+later version. This applies to all source code in the repository, including the
+code under `backup_codes`.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+The full license text is available in [`LICENSE`](LICENSE).
